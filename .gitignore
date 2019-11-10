@@ -1,0 +1,99 @@
+# Configuration Folders
+heterocl
+Halide-HLS
+soda-compiler
+llvm3.8
+llvm8.0
+
+
+
+# some record file
+*.txt
+*.npy
+*.png
+*.jpg
+
+*.rpt
+*.xo
+
+*.stmt
+*.html
+
+
+
+# C++.gitignore
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+
+# HLS and Verilog
+hls_prj
+_x
+.Xil
+xo
+*.v
+*.vhd
+*.xci 
+*.xml
+*.tcl
+*.adb 
+
+# Other Configurations
+.gitconfig
+.cache
+.config
+.ipython
+.jupyter
+.local
+.mozilla
+.oracle_jre_usage
+.pylint.d
+.python-eggs
+.ssh
+.subversion
+.swt
+.vivado_hls
+.vscode
+.vscode-cpptools
+.vscode-server
+.Xilinx
+.bash_history
+.flexlmrc
+.python_history
+.sudo_as_admin_successful
+.viminfo
+.wget-hsts
+.Xauthority
+clang+llvm-3.8.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz
+
