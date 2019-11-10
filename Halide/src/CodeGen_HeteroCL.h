@@ -279,6 +279,21 @@ protected:
     /** record input data type: input_type->first is input name, input_type->second is a pair including (type, bits) */
     std::map< std::string, std::pair <std::string, int> > input_type;
 
+
+    // New Transformation Rules
+    // Function
+    void print_index(int number);
+    
+
+
+
+
+
+    // Variables
+    /** function_name, collected in compile(const LoweredFunc &f); it is also the last stage's name */
+    std::string function_name;
+
+
     using IRVisitor::visit;
 
     void visit(const Variable *) override;

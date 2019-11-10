@@ -269,9 +269,9 @@ Module lower(const vector<Function> &output_funcs,
 
     // Close storage flatten: to generate HeteroCL code; Open storage flatten: to call Realize sucessfully to generate output_halide
     
-    debug(1) << "Performing storage flattening...\n";
-    s = storage_flattening(s, outputs, env, t); // make multiple dim to one dim... need to close it
-    debug(2) << "Lowering after storage flattening:\n" << s << "\n\n";
+    // debug(1) << "Performing storage flattening...\n";
+    // s = storage_flattening(s, outputs, env, t); // make multiple dim to one dim... need to close it
+    // debug(2) << "Lowering after storage flattening:\n" << s << "\n\n";
 
     debug(1) << "Unpacking buffer arguments...\n";
     s = unpack_buffers(s);
@@ -349,9 +349,9 @@ Module lower(const vector<Function> &output_funcs,
     s = simplify(s); // seems no change for simple
     debug(2) << "Lowering after partitioning loops:\n" << s << "\n\n";
 
-    debug(1) << "Trimming loops to the region over which they do something...\n";
-    s = trim_no_ops(s); // if close the storage_flatten optimization, open this will make func.body to 0. Don't know why. But closing storage_flatten, and then closing this will cause iternal_error when compile_to_;;v,...
-    debug(2) << "Lowering after loop trimming:\n" << s << "\n\n";
+    // debug(1) << "Trimming loops to the region over which they do something...\n";
+    // s = trim_no_ops(s); // if close the storage_flatten optimization, open this will make func.body to 0. Don't know why. But closing storage_flatten, and then closing this will cause iternal_error when compile_to_;;v,...
+    // debug(2) << "Lowering after loop trimming:\n" << s << "\n\n";
 
     debug(1) << "Injecting early frees...\n";
     s = inject_early_frees(s);

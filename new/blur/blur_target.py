@@ -17,11 +17,11 @@ blur_y_min_1 = 0
 
 def top(input):
     blur_x = hcl.compute((blur_y_extent_0, blur_y_extent_1 + 2), lambda x, y: 0, name = "blur_x", dtype = hcl.UInt(bits = 16)) # realize: it's like allocate
-    blur_y = hcl.compute((blur_y_extent_0, blur_y_extent_1), lambda x, y: 0, name = "blur_y", dtype = hcl.UInt(bits = 16)) # no corresponding realize node in Halide IR for the output, but we can create a compute function for all the output?
     with hcl.Stage("stage_blur_x"):  # produce
         with hcl.for_(blur_y_min_1, blur_y_extent_1 + 2, name = "blur_x_s0_y") as blur_x_s0_y:
             with hcl.for_(blur_y_min_0, blur_y_extent_0, name = "blur_x_s0_x") as blur_x_s0_x:
-                blur_x[blur_x_s0_x, blur_x_s0_y] = ((input[(blur_x_s0_x + 2), blur_x_s0_y] + (input[blur_x_s0_x, blur_x_s0_y] + input[(blur_x_s0_x + 1), blur_x_s0_y])) / 3)
+                blur_x[blur_x_s0_x, blur_x_s0_y] = ((input[(blur_x_s0_x + 2), blur_x_s0_y] + (input[blur_x_s0_x, blur_x_s0_y] + input[(blur_x_s0_x + 1), blur_x_s0_y])) / 3) # Provide, Call, and other regualr calculation nodes
+    blur_y = hcl.compute((blur_y_extent_0, blur_y_extent_1), lambda x, y: 0, name = "blur_y", dtype = hcl.UInt(bits = 16)) # no corresponding realize node in Halide IR for the output, but we can create a compute function for all the output?
     with hcl.Stage("stage_blur_y"): # for
         with hcl.for_(blur_y_min_1, blur_y_extent_1, name = "blur_y_s0_y") as blur_y_s0_y:
             with hcl.for_(blur_y_min_0, blur_y_extent_0, name = "blur_y_s0_x") as blur_y_s0_x:

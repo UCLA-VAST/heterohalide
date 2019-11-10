@@ -33,11 +33,14 @@ int main(int argc, char **argv) {
 
     Func blur_y("blur_y");
     blur_y(x, y) = (blur_x(x, y) + blur_x(x, y+1) + blur_x(x, y+2)) / 3; 
+
+    Func final("final");
+    final(x, y) = blur_y(x, y);
     
     blur_x.compute_root();
     blur_y.compute_root();
+    final.compute_root();
 
-    
     // can't use one function here: blur_x(x, y) = (blur_x(x, y) + blur_x(x, y+1) + blur_x(x, y+2)) / 3, if use recursive references, the index need to be the same. It seems to be a demand to protect scheduling
     // Error occured: All of a function's recursive references to itself must contain the same pure variables in the same places as on the left-hand-side.
 
@@ -64,30 +67,30 @@ int main(int argc, char **argv) {
     Buffer<uint16_t> output(input.width() - 8, input.height() - 2); // width - 8, height - 2
     
 
-    blur_y.realize(output);    
-    std::ofstream outfile ("/curr/jiajieli/new/blur/output_halide.txt");
-    if (!outfile)
-    {
-        std::cout << "can't open" << std::endl;
-    }
-    else
-    {
-        for (int y = 0; y < output.height(); y++) {
-            for (int x = 0; x < output.width(); x++) {
-                outfile << output(x, y) << '\t';
-            }
-        }  
-    }
-
-
-    // std::vector<int> output_shape;
-    // for (int i = 0; i < output.dimensions(); i++){
-    //     output_shape.push_back(output.extent(i));
+    // final.realize(output);    
+    // std::ofstream outfile ("/curr/jiajieli/new/blur/output_halide.txt");
+    // if (!outfile)
+    // {
+    //     std::cout << "can't open" << std::endl;
+    // }
+    // else
+    // {
+    //     for (int y = 0; y < output.height(); y++) {
+    //         for (int x = 0; x < output.width(); x++) {
+    //             outfile << output(x, y) << '\t';
+    //         }
+    //     }  
     // }
 
-    // blur_y.compile_to_heterocl("blur_generate.py", {input}, output_shape, "blur_y"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
-    // std::cout << "HeteroCL code Generated" << std::endl;
-    blur_y.compile_to_lowered_stmt("blur_no_sf.stmt", {input}, Text);
+
+    std::vector<int> output_shape;
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
+    }
+
+    final.compile_to_heterocl("blur_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
+    std::cout << "HeteroCL code Generated" << std::endl;
+    final.compile_to_lowered_stmt("blur.stmt", {input}, Text);
 
     return 0;
 }

@@ -460,7 +460,7 @@ void CodeGen_HeteroCL::compile(const Module &input) {
     for(auto iter = input_name.begin(); iter != input_name.end(); ++iter) {
         stream << *iter << ", ";
     }
-    stream << "], " << "_all" << ")\n";
+    stream << "], " << "top" << ")\n";
     
     schedule();
 
@@ -482,15 +482,9 @@ void CodeGen_HeteroCL::instantiate() {
         string hcl_input_name = "hcl_" + iter_info->first;
         hcl_input_name_group.push_back(hcl_input_name);
         do_indent();
-        stream << np_input_name << " = " << "np.transpose(np.load(\"" << iter_info->first << ".npy\"), ";
-        stream << "(";
-        for (int i = iter_info->second.size() - 1; i >= 0; i--) {
-            stream << i;
-            if (i > 0) {
-                stream << ", ";
-            }
-        }
-        stream << "))\n";
+
+        stream << np_input_name << " = " << "np.load(\"" << iter_info->first << ".npy\")\n";
+
         do_indent();
         stream << hcl_input_name << " = " << "hcl.asarray(" << np_input_name << ", ";
         stream << "dtype = " << input_type[iter_info->first].first << "(bits = " << std::to_string(input_type[iter_info->first].second) << ")";
@@ -499,13 +493,11 @@ void CodeGen_HeteroCL::instantiate() {
 
     do_indent();
     stream << "output_shape = (";
-    for (size_t i = 0; i < last_func_axis_call_order.size(); i++) {
-        stream << output_shape[ last_func_axis_call_order[i] ];
-        if (i < last_func_axis_call_order.size() - 1) {
-            stream << ", ";
-        }
+    for (size_t i = 0; i < output_shape.size(); i++) {
+        stream << output_shape[i] << ", ";
     }
     stream << ")\n";
+
     do_indent();
     stream << "hcl_out = hcl.asarray(np.zeros(output_shape), " << "dtype = " << stage_type.first << "(bits = " << std::to_string(stage_type.second) << "))\n";
     do_indent();
@@ -516,17 +508,6 @@ void CodeGen_HeteroCL::instantiate() {
     stream << "hcl_out)\n";
     do_indent();
     stream << "np_out = hcl_out.asnumpy()\n";
-    do_indent();
-    stream << "np_out = np.transpose(np_out, (";
-    for (int i = 0; i < (int)output_shape.size(); i++) {
-        vector<int>::iterator iter = std::find(last_func_axis_call_order.begin(), last_func_axis_call_order.end(), i); // find i
-        int index = std::distance(last_func_axis_call_order.begin(), iter); // get index
-        stream << index;
-        if (i < (int)output_shape.size() - 1) {
-            stream << ", ";
-        }
-    }
-    stream << "))\n";
     do_indent();
     stream << "np.save(\"output_heterocl.npy\", np_out)" << "\n";
     stream << "print(hcl.build(s, target = \"soda\"))" << "\n";
@@ -539,7 +520,7 @@ void CodeGen_HeteroCL::schedule() {
         string stage_name = iter->first;
         string schedule_stage_name = "s_" + iter->first;
         do_indent();
-        stream << schedule_stage_name << " = " << "_all." << stage_name << "\n";
+        stream << schedule_stage_name << " = " << "top." << stage_name << "\n";
 
         for (auto iter_pair = iter->second.begin(); iter_pair != iter->second.end(); ++iter_pair) {
             do_indent();
@@ -552,7 +533,7 @@ void CodeGen_HeteroCL::schedule() {
         string stage_name = iter->first;
         string schedule_stage_name = "s_" + iter->first;
         do_indent();
-        stream << schedule_stage_name << " = " << "_all." << stage_name << "\n";
+        stream << schedule_stage_name << " = " << "top." << stage_name << "\n";
 
         for (auto iter_axis = iter->second.begin(); iter_axis != iter->second.end(); ++iter_axis) {
             do_indent();
@@ -683,7 +664,7 @@ void CodeGen_HeteroCL::print_output_min(string func_name) {
 }
 
 void CodeGen_HeteroCL::compile(const LoweredFunc &f) {
-    string function_name = print_name(f.name); // _srgb
+    function_name = print_name(f.name); // it is also the last stage's
     print_output_extent(function_name);
     print_output_min(function_name); // simply set all min = 0
 
@@ -693,17 +674,35 @@ void CodeGen_HeteroCL::compile(const LoweredFunc &f) {
     }
 
     do_indent();
-    stream << "def _all(";
+    stream << "def top(";
     for (auto iter = input_name.begin(); iter != input_name.end(); ++iter) { // bug here: dont have input_name info now. Collect it in the function compiling level
         stream << *iter << ", ";
     }
     stream << "):\n";
+
     indent += 4;
+    
+    // // claim output stage's compute function in advance, because the last stage doesn't have a Realize node
+    // stream << function_name << " = " << "hcl.compute(";
+    // for(size_t i = 0; i < output_shape.size(); i++) {
+    //     stream << output_shape[i];
+    //     if (i < output_shape.size() - 1) {
+    //         stream << ", ";
+    //     }
+    // }
+    // stream << ", lambda: ";
+    // print_index(output_shape.size());
+    // stream << ": 0, " << "name = \"" << function_name << "\", "
 
     print(f.body);  
 
     do_indent();
+
+    stream << "return " << function_name << "\n";
+
+    /* Version 1
     stream << "return " << stage_name << "\n";
+    */
 
     indent -= 4;
 
@@ -1106,7 +1105,119 @@ void CodeGen_HeteroCL::print_data_cast() {
 }
 
 void CodeGen_HeteroCL::visit(const Call *op) {
-    // for cleaning the code, ignore the call node
+    // // copy from IRPrinter. 
+    // // Need more "if" for other Call Function
+    // stream << op->name << "[";
+
+    // for (size_t i = 0; i < op->args.size(); i++) {
+    //     op->args[i].accept(this);
+    //     if (i < op->args.size() - 1) {
+    //         stream << ", ";
+    //     }
+    // }
+
+    // stream << "]";
+
+
+
+    debug(0) << "visit call...\n";
+    debug(0) << "name: " << op->name << "\n";
+    debug(0) << "CallType: " << op->call_type << "\n";
+    debug(0) << "if image defined?: " << op->image.defined() << "\n";
+
+    if (op->call_type == Internal::Call::CallType::Image || op->call_type == Internal::Call::CallType::PureExtern || op->call_type == Internal::Call::CallType::Halide || op->call_type == Internal::Call::CallType::PureIntrinsic) { // ignore other type of call. 
+    // PureExtern(3) include pow_f32, exp_f32; PureIntrinsic include absd(absolute difference)
+        if (op->image.defined()) { // only call input Image will be True. Call other intermediate Func won't go into this branch
+            debug(0) << "input dimensions: " << op->image.dimensions() << "\n";
+            debug(0) << "input extent 0: " << op->image.extent(0) << "\n";
+            // debug(0) << "input extent 1: " << op->image.extent(1) << "\n";
+            // debug(0) << "input stride 0 : " << op->image.stride(0) << "\n";
+            // debug(0) << "input stride 1: " << op->image.stride(1) << "\n";
+            debug(0) << "input name: " << op->image.name() << "\n"; // input
+            debug(0) << "input type UInt: " << op->image.type().is_uint() << "\n";
+            debug(0) << "input type bits: " << op->image.type().bits() << "\n";
+            string name = print_name(op->image.name());
+
+            auto input_iter = input_info.find(name);
+            if (input_iter == input_info.end()) { // can't find it
+                std::vector<int> input_extents;
+                for(int i = 0; i < op->image.dimensions(); i++) {
+                    input_extents.push_back(op->image.extent(i));
+                }
+                input_info[name] = input_extents;
+            } else { // find it
+                debug(0) << "already save this input info\n";
+            }
+            
+            auto input_type_iter = input_type.find(name);
+            if (input_type_iter == input_type.end()) { // can't find it
+                std::pair<string, int> type_bits;
+                if (op->image.type().is_float()) {
+                    type_bits.first = "hcl.Float";
+                } else if (op->image.type().is_int()) {
+                    type_bits.first = "hcl.Int";
+                } else if (op->image.type().is_uint()) {
+                    type_bits.first = "hcl.UInt";
+                } else {
+                    internal_error << "Realize Type is not one of {float, int, uint}\n";
+                }
+                type_bits.second = op->image.type().bits();
+                input_type[name] = type_bits;
+            } else { // find it
+                debug(0) << "already save this input type info\n";
+            }
+        }
+        
+        string call_name;
+        if (op->name == "absd") {
+            stream << "absd(";
+            print_list(op->args);
+            stream << ", ";
+        } else if (op->name == "pow_f32") {
+            call_name = "hcl.power";
+            stream << call_name << "(";
+            print_list(op->args);
+            stream << ")";
+        } else if (op->name == "exp_f32") {
+            stream << "hcl.call_pure_intrin(\"float\", \"pow\", 2.718280, ";
+            // stream << "hcl.power(__expo[0], ";
+            print_list(op->args);
+            stream << ")";
+        } else if (op->call_type == Internal::Call::CallType::Halide) { // Load multi-dimensional. Maybe need to check if call_name = one of the input or output name?
+
+            stream << op->name << "[";
+            for (size_t i = 0; i < op->args.size(); i++) {
+                op->args[i].accept(this);
+                if (i < op->args.size() - 1) {
+                    stream << ", ";
+                }
+            }
+            stream << "]";
+
+        } else if (op->call_type == Internal::Call::CallType::Image) {
+
+            stream << op->name << "[";
+            for (size_t i = 0; i < op->args.size(); i++) {
+                op->args[i].accept(this);
+                if (i < op->args.size() - 1) {
+                    stream << ", ";
+                }
+            }
+            stream << "]";
+            
+        }
+    }
+
+
+
+
+
+
+
+
+    }
+
+    /* Version 1 - Call
     debug(0) << "visit call...\n";
     debug(0) << "name: " << op->name << "\n";
     debug(0) << "CallType: " << op->call_type << "\n";
@@ -1172,13 +1283,7 @@ void CodeGen_HeteroCL::visit(const Call *op) {
             stream << ")";
         } else if (op->call_type == Internal::Call::CallType::Halide) { // Load multi-dimensional. Maybe need to check if call_name = one of the input or output name?
             call_name = print_name(op->name);
-            // if (stage_type.first == "hcl.Float") {
-            //     print_data_cast(); // equals to sth like: stream << "hcl.cast(dtype = hcl.Float(bits = 32), expr = "
-            //     stream << call_name << "[";
-            //     print_list_as_last_stage_order(op->args);
-            //     stream << "]";
-            //     stream << ")";
-            // } else {
+
             stream << call_name << "[";
             print_list_as_last_stage_order(op->args);
             stream << "]";
@@ -1199,9 +1304,18 @@ void CodeGen_HeteroCL::visit(const Call *op) {
             // }
         }
     }
-  
+    */
 
-// Load
+
+
+
+
+
+
+
+
+
+    /* Very Old Version: Load
     // debug(0) << "visit load...\n";
 
     
@@ -1234,7 +1348,17 @@ void CodeGen_HeteroCL::visit(const Call *op) {
     // stream << "]";
     // }
     // print_load_index(shape_dim);
-}
+    */
+
+
+
+
+
+
+
+
+
+
 
 /*
 string CodeGen_HeteroCL::print_scalarized_expr(Expr e) {
@@ -1555,9 +1679,12 @@ void CodeGen_HeteroCL::print_placeholder() {
         do_indent();
         input_dim = iter_info->second.size();
         dim_count = 0;
+
         debug(0) << "input dim: " << input_dim << "\n";
+        debug(0) << "Wrong here?!" << "\n";
+
         stream << iter_info->first << " = " << "hcl.placeholder((";
-        for (auto iter_ext = iter_info->second.rbegin(); iter_ext != iter_info->second.rend(); ++iter_ext) {
+        for (auto iter_ext = iter_info->second.begin(); iter_ext != iter_info->second.end(); ++iter_ext) {
             if (dim_count == input_dim - 1) {
                 stream << *iter_ext;
                 dim_count ++;
@@ -1577,7 +1704,42 @@ void CodeGen_HeteroCL::print_placeholder() {
 void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
     letstmt_validate = 1;
 
-    
+
+
+    if (op->is_producer) {
+
+        // To deal with "Final stage", one solution is: we collect information in "Realize", and print hcl.compute(lambda: 0) in Producer
+        if (op->name == function_name) {
+            do_indent();
+            stream << op->name << " = " << "hcl.compute(";
+            stream << "(";
+            for (size_t i = 0; i < output_shape.size(); i++) {
+                stream << output_shape[i];
+                if (i < output_shape.size() - 1) {
+                    stream << ", ";
+                }
+            }
+            stream << "), lambda: ";
+            print_index(output_shape.size());
+            stream << ": 0, name = \"" << op->name << "\", dtype = " << stage_type.first << "(bits = " << std::to_string(stage_type.second) << "))\n";
+        }
+        //
+
+
+        do_indent();
+        stream << "with hcl.Stage(\"" << op->name << "\"):\n";
+        indent += 4;
+        op->body.accept(this);
+        indent -= 4;
+    } else {
+        op->body.accept(this);
+    }
+}
+
+
+
+
+    /* Version 1
     if (op->is_producer) {
         debug(0) << "visit produce...\n";
         stage_num = 0; // maybe this equation have to be moved under if ?...
@@ -1595,11 +1757,11 @@ void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
         consume_name_group.push_back(consume_name);
         op->body.accept(this);
     }
+    */
 
 
 
-
-    // // formal
+    /* Very Old Version
     // output_name = print_name(op->name);
     // for_count = 0;
     // do_indent();
@@ -1619,7 +1781,8 @@ void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
     // indent -= 4;
     // stream << "\n";
     // print_placeholder();
-}
+    */
+
 
 
 
@@ -1781,14 +1944,25 @@ void CodeGen_HeteroCL::print_using_stage_def_when_compute() {
 }
 
 void CodeGen_HeteroCL::visit(const For *op) {
-    // first let's suppose that axis begins at 0, so extent equals to the length
-    
-    // string id_min = print_expr(op->min);
-    // string id_extent = print_expr(op->extent); 
 
-    // print output_shape here
 
     debug(0) << "visit for...\n";
+
+    do_indent();
+    stream << "with hcl.for_" << "(";
+    op->min.accept(this); 
+    stream << ", ";
+    op->extent.accept(this);
+    stream << ", name = " << "\"" << print_name(op->name) << "\") as " << print_name(op->name) << ":\n";
+    indent += 4;
+
+    op->body.accept(this);
+    
+    indent -= 4;
+}
+ 
+ 
+    /* Version 1 - For
 
     std::size_t found = op->name.find("$"); //"$" seems to be the character of reduction domain loop's name
     if (found != std::string::npos) {
@@ -1893,10 +2067,16 @@ void CodeGen_HeteroCL::visit(const For *op) {
         if_stage_unroll = 0;
         if_stage_parallel = 0;
     }
-}
+    */
 
-    /* 
-    // formal
+
+
+
+
+
+
+
+    /* Very Old Version (probably not storage_flatten version? So I still remain it here)
     string stage_name;
 
     string id_min;
@@ -2022,9 +2202,25 @@ void CodeGen_HeteroCL::visit(const Broadcast *op) {
 
 void CodeGen_HeteroCL::visit(const Provide *op) {
     debug(0) << "visit Provide...\n";
-    // do_indent();
-    // stream << "out = hcl.local(0)\n";
 
+    do_indent();
+    stream << op->name << "[";
+    print_list(op->args);
+    stream << "] = ";
+    // if (op->values.size() > 1) {
+    //     stream << "{";
+    // }
+
+    print_list(op->values);
+
+    // if (op->values.size() > 1) {
+    //     stream << "}";
+    // }
+
+    stream << '\n';
+
+}
+    /* Version 1 - Provide
     if (!reduction_info.empty()) {
         do_indent();
         reducer_name = "_sum"; // for now, it's given "_sum" directly
@@ -2045,18 +2241,13 @@ void CodeGen_HeteroCL::visit(const Provide *op) {
     print_list(op->values);
 
     stream << "\n";
-    // do_indent();
-    // stream << "return out[0]\n";
+    */
 
 
 
-    // stream << print_name(op->name) << "[";
-    // print_list(op->args);
-    // stream << "] = ";
-    // debug(0) << "provide values vector size: " << op->values.size() << "\n";
-    // print_list(op->values);
-    // stream << "\n";
-}
+
+
+
 
 /*
 void CodeGen_HeteroCL::visit(const Allocate *op) {
@@ -2189,7 +2380,57 @@ void CodeGen_HeteroCL::visit(const Free *op) {
 }
 */
 
+void CodeGen_HeteroCL::print_index(int number) {
+    switch (number)
+    {
+        case 1: 
+            stream << "x";
+            break;
+        case 2:
+            stream << "x, y";
+            break;
+        case 3:
+            stream << "x, y, z";
+            break;
+        case 4: 
+            stream << "x, y, z, w";
+            break; 
+        default: 
+            internal_error << "number is not in 1-4\n";
+    }
+}
+
 void CodeGen_HeteroCL::visit(const Realize *op) {
+    // check Realize type, record in stage_type
+    internal_assert(op->types.size() == 1); // seems always to be 1 for now
+    stage_type.second = op->types[0].bits();
+    if (op->types[0].is_float()) {
+        stage_type.first = "hcl.Float";
+    } else if (op->types[0].is_int()) {
+        stage_type.first = "hcl.Int";
+    } else if (op->types[0].is_uint()) {
+        stage_type.first = "hcl.UInt";
+    } else {
+        internal_error << "Realize Type is not one of {float, int, uint}\n";
+    }
+
+    do_indent();
+    stream << op->name << " = " << "hcl.compute(";
+    stream << "(";
+    for (size_t i = 0; i < op->bounds.size(); i++) {
+        op->bounds[i].extent.accept(this);
+        if (i < op->bounds.size() - 1) {
+            stream << ", ";
+        }
+    }
+    stream << "), lambda: ";
+    print_index(op->bounds.size());
+    stream << ": 0, name = \"" << op->name << "\", dtype = " << stage_type.first << "(bits = " << std::to_string(stage_type.second) << "))\n";
+
+    op->body.accept(this); 
+
+
+    /** Version 1
     debug(0) << "visit Realize...\n";
     debug(0) << "realize type vector size: " << op->types.size() << "\n";
     debug(0) << "is_float: " << op->types[0].is_float() << ", " << "is_int: " << op->types[0].is_int() << ", " << "is_uint: " << op->types[0].is_uint() << "\n";
@@ -2209,6 +2450,7 @@ void CodeGen_HeteroCL::visit(const Realize *op) {
 
     op->body.accept(this);
     // do nothing
+    **/
 }
 
 /*
