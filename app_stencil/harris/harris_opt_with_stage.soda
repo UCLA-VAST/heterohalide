@@ -1,0 +1,62 @@
+kernel: default_function
+burst width: 64
+unroll factor: 2
+iterate: 1
+output uint16:
+  output_0(0, 0) = hw_output_0(0, 0)
+input int32: input(2448, *)
+local float32:
+  cim_0(0, 0) = (((((float32(grad_gx_1(0, 0)) * 0.00694444F) * float32(grad_gy_1(0, 0))) - ((float32(grad_gxy_1(0, 0)) * 0.00694444F) * float32(grad_gxy_1(0, 0)))) * 0.00694444F) - ((((float32(grad_gx_1(0, 0)) + float32(grad_gy_1(0, 0))) * 0.00694444F) * (float32(grad_gx_1(0, 0)) + float32(grad_gy_1(0, 0)))) * 0.000277778F))
+local int32:
+  reducer0_ssa1 = grad_xx_0(0, 0)
+  reducer0_ssa2 = int32((int33(grad_xx_0(1, 0)) + int33(reducer0_ssa1)))
+  reducer0_ssa3 = int32((int33(grad_xx_0(2, 0)) + int33(reducer0_ssa2)))
+  reducer0_ssa4 = int32((int33(grad_xx_0(0, 1)) + int33(reducer0_ssa3)))
+  reducer0_ssa5 = int32((int33(grad_xx_0(1, 1)) + int33(reducer0_ssa4)))
+  reducer0_ssa6 = int32((int33(grad_xx_0(2, 1)) + int33(reducer0_ssa5)))
+  reducer0_ssa7 = int32((int33(grad_xx_0(0, 2)) + int33(reducer0_ssa6)))
+  reducer0_ssa8 = int32((int33(grad_xx_0(1, 2)) + int33(reducer0_ssa7)))
+  reducer0_ssa9 = int32((int33(grad_xx_0(2, 2)) + int33(reducer0_ssa8)))
+  grad_gx_1(0, 0) = reducer0_ssa9
+local int16:
+  padded16_0(0, 0) = int16(input(0, 0))
+local int32:
+  grad_gy_0(0, 0) = 0
+local int32:
+  reducer2_ssa1 = grad_yy_0(0, 0)
+  reducer2_ssa2 = int32((int33(grad_yy_0(1, 0)) + int33(reducer2_ssa1)))
+  reducer2_ssa3 = int32((int33(grad_yy_0(2, 0)) + int33(reducer2_ssa2)))
+  reducer2_ssa4 = int32((int33(grad_yy_0(0, 1)) + int33(reducer2_ssa3)))
+  reducer2_ssa5 = int32((int33(grad_yy_0(1, 1)) + int33(reducer2_ssa4)))
+  reducer2_ssa6 = int32((int33(grad_yy_0(2, 1)) + int33(reducer2_ssa5)))
+  reducer2_ssa7 = int32((int33(grad_yy_0(0, 2)) + int33(reducer2_ssa6)))
+  reducer2_ssa8 = int32((int33(grad_yy_0(1, 2)) + int33(reducer2_ssa7)))
+  reducer2_ssa9 = int32((int33(grad_yy_0(2, 2)) + int33(reducer2_ssa8)))
+  grad_gy_1(0, 0) = reducer2_ssa9
+local int32:
+  grad_xy_0(0, 0) = int32((int64(int32(grad_x_0(0, 0))) * int64(int32(grad_y_0(0, 0)))))
+local int32:
+  grad_gx_0(0, 0) = 0
+local int32:
+  grad_gxy_0(0, 0) = 0
+local int32:
+  grad_yy_0(0, 0) = int32((int64(int32(grad_y_0(0, 0))) * int64(int32(grad_y_0(0, 0)))))
+local uint16:
+  hw_output_0(0, 0) = uint16(select(((100.000F <= cim_0(1, 1)) && (select((select((select((select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)))) < cim_0(0, 2)), cim_0(0, 2), select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))))) < cim_0(1, 2)), cim_0(1, 2), select((select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)))) < cim_0(0, 2)), cim_0(0, 2), select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)))))) < cim_0(2, 2)), cim_0(2, 2), select((select((select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)))) < cim_0(0, 2)), cim_0(0, 2), select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))))) < cim_0(1, 2)), cim_0(1, 2), select((select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)))) < cim_0(0, 2)), cim_0(0, 2), select((select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))) < cim_0(2, 1)), cim_0(2, 1), select((select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0)) < cim_0(0, 1)), cim_0(0, 1), select((cim_0(1, 0) < cim_0(0, 0)), cim_0(0, 0), cim_0(1, 0))))))) < cim_0(1, 1))), 255, 0))
+local int16:
+  grad_y_0(0, 0) = int16((int35((padded16_0(2, 2) - padded16_0(2, 0))) + int35(int34((int33((int32((padded16_0(1, 2) - padded16_0(1, 0))) * 2)) + int33(int17((padded16_0(0, 2) - padded16_0(0, 0)))))))))
+local int16:
+  grad_x_0(0, 0) = int16((int36(padded16_0(2, 2)) + int36(int35((int34(((int32(padded16_0(2, 1)) * 2) - int32(padded16_0(0, 2)))) + int34(int33((int32(int17((padded16_0(2, 0) - padded16_0(0, 0)))) - (int32(padded16_0(0, 1)) * 2)))))))))
+local int32:
+  reducer1_ssa1 = grad_xy_0(0, 0)
+  reducer1_ssa2 = int32((int33(grad_xy_0(1, 0)) + int33(reducer1_ssa1)))
+  reducer1_ssa3 = int32((int33(grad_xy_0(2, 0)) + int33(reducer1_ssa2)))
+  reducer1_ssa4 = int32((int33(grad_xy_0(0, 1)) + int33(reducer1_ssa3)))
+  reducer1_ssa5 = int32((int33(grad_xy_0(1, 1)) + int33(reducer1_ssa4)))
+  reducer1_ssa6 = int32((int33(grad_xy_0(2, 1)) + int33(reducer1_ssa5)))
+  reducer1_ssa7 = int32((int33(grad_xy_0(0, 2)) + int33(reducer1_ssa6)))
+  reducer1_ssa8 = int32((int33(grad_xy_0(1, 2)) + int33(reducer1_ssa7)))
+  reducer1_ssa9 = int32((int33(grad_xy_0(2, 2)) + int33(reducer1_ssa8)))
+  grad_gxy_1(0, 0) = reducer1_ssa9
+local int32:
+  grad_xx_0(0, 0) = int32((int64(int32(grad_x_0(0, 0))) * int64(int32(grad_x_0(0, 0)))))

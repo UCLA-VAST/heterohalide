@@ -1,0 +1,15 @@
+kernel: default_function
+burst width: 256
+unroll factor: 8
+iterate: 1
+output float32:
+  output_0(0, 0) = srgb_0(0, 0)
+local float32:
+  srgb_0(0, 0) = select((0.00313100F < blur_y_0(0, 0)), ((powf(blur_y_0(0, 0), 0.416667F) * 1.05500F) + -0.0550000F), (blur_y_0(0, 0) * 12.9200F))
+local float32:
+  blur_y_0(0, 0) = ((blur_x_0(0, 2) + (blur_x_0(0, 0) + blur_x_0(0, 1))) * 0.333333F)
+local float32:
+  linear_0(0, 0) = select((0.0404500F < input(0, 0)), powf(((input(0, 0) * 0.947867F) + 0.0521330F), 2.40000F), (input(0, 0) * 0.0773990F))
+local float32:
+  blur_x_0(0, 0) = ((linear_0(2, 0) + (linear_0(0, 0) + linear_0(1, 0))) * 0.333333F)
+input float32: input(768, *)
