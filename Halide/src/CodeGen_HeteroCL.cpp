@@ -320,7 +320,7 @@ protected:
     using IRVisitor::visit;
 
     void visit(const Call *op) override {
-        debug(0) << "TypeFinder visit Call...\n";
+        debug(1) << "TypeFinder visit Call...\n";
         if (op->call_type == Internal::Call::CallType::Image) { // ignore other type of call
             input_bits = op->image.type().bits();
 

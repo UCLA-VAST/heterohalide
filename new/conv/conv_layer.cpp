@@ -49,14 +49,14 @@ int main(int argc, char **argv) {
     Func f_ReLU("f_relu");
     f_ReLU(x, y, z, n) = max(0, f_conv(x, y, z, n));
 
-    Func output("output");
-    output(x, y, z, n) = f_ReLU(x, y, z, n);
+    Func final("final");
+    final(x, y, z, n) = f_ReLU(x, y, z, n);
 
     f_conv.compute_root();
     f_ReLU.compute_root();
-    output.compute_root();
+    final.compute_root();
 
-    Buffer<float> out(64, 64, 32, 4);
+    Buffer<float> output(64, 64, 32, 4);
 
     // output.realize(out);
     // std::ofstream output_file ("/curr/jiajieli/new/conv/output_halide.txt");
@@ -74,12 +74,12 @@ int main(int argc, char **argv) {
 
 
     std::vector<int> output_shape;
-    for (int i = 0; i < out.dimensions(); i++){
-        output_shape.push_back(out.extent(i));
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
     }
 
-    output.compile_to_lowered_stmt("conv.stmt", {input, filter, bias}, Text);
-    output.compile_to_heterocl("conv_generate.py", {input, filter, bias}, output_shape, "output");
+    final.compile_to_lowered_stmt("conv.stmt", {input, filter, bias}, Text);
+    final.compile_to_heterocl("conv_gen.py", {input, filter, bias}, output_shape, "final");
 
 
     std::cout << "HeteroCL code generated" << std::endl;

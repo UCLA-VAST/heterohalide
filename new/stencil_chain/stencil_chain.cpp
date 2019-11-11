@@ -38,11 +38,11 @@ int main(int argc, char **argv) {
         stages.push_back(f);
     }
 
-    Func output("output");
-    output(x, y) = stages.back()(x, y);
-    output.compute_root();
+    Func final("final");
+    final(x, y) = stages.back()(x, y);
+    final.compute_root();
 
-    Buffer<uint16_t> out(width - 4 * stencils, height - 4 * stencils);
+    Buffer<uint16_t> output(width - 4 * stencils, height - 4 * stencils);
 
     // const clock_t begin_time = clock();
     // output.realize(out);
@@ -54,24 +54,24 @@ int main(int argc, char **argv) {
 
 
 
-    output.realize(out);
-    std::ofstream output_file("/curr/jiajieli/new/stencil_chain/output_halide.txt");
-    for (int y = 0; y < out.height(); y++){
-        for (int x = 0; x < out.width(); x++){
-            output_file << out(x, y) << "\t"; 
-        }
-    }       
+    // final.realize(out);
+    // std::ofstream output_file("/curr/jiajieli/new/stencil_chain/output_halide.txt");
+    // for (int y = 0; y < output.height(); y++){
+    //     for (int x = 0; x < output.width(); x++){
+    //         output_file << output(x, y) << "\t"; 
+    //     }
+    // }       
 
 
 
-    // std::vector<int> output_shape;
-    // for (int i = 0; i < out.dimensions(); i++){
-    //     output_shape.push_back(out.extent(i));
-    // }
+    std::vector<int> output_shape;
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
+    }
 
-    // output.compile_to_heterocl("stencil_generate.py", {input}, output_shape, "output"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
-    // std::cout << "HeteroCL code Generated" << std::endl;
-    // output.compile_to_lowered_stmt("stencil.stmt", {input}, Text);
+    final.compile_to_lowered_stmt("stencil.stmt", {input}, Text);
+    final.compile_to_heterocl("stencil_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
+    std::cout << "HeteroCL code Generated" << std::endl;
 
 
     //     /* ESTIMATES */
