@@ -23,6 +23,9 @@ revise.md
 *.html
 
 
+# Intermediate Files by Mobaxterm
+.nfs*
+
 
 # C++.gitignore
 

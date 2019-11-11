@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
     srgb(x, y, c) = select(blur_y(x, y, c) <= .0031308f,
                     blur_y(x, y, c) * 12.92f,
                     (1 + .055f) * pow(blur_y(x, y, c), 1.0f / 2.4f) - .055f);
-    Func output{"output"};
-    output(x, y, c) = srgb(x, y, c);
+    Func final{"final"};
+    final(x, y, c) = srgb(x, y, c);
 
     //fuse
     // Var fused("fused");
@@ -72,11 +72,11 @@ int main(int argc, char **argv) {
     blur_x.compute_root();
     blur_y.compute_root();
     srgb.compute_root();
-    output.compute_root();
+    final.compute_root();
 
 
 
-    Buffer<float> out(width - 2, height - 2, channel);
+    Buffer<float> output(width - 2, height - 2, channel);
 
     // output.realize(out);
     // std::ofstream output_file ("/curr/jiajieli/new/linear_blur/output_halide.txt");
@@ -90,13 +90,13 @@ int main(int argc, char **argv) {
     
 
     std::vector<int> output_shape;
-    for (int i = 0; i < out.dimensions(); i++){
-        output_shape.push_back(out.extent(i));
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
     }
 
-    output.compile_to_lowered_stmt("linear_blur.stmt", {input}, Text);   
-    output.compile_to_heterocl("linear_blur_generate.py", {input, }, output_shape, "output");
-    // std::cout << "HeteroCL code generated" << std::endl;
+    final.compile_to_lowered_stmt("linear_blur.stmt", {input}, Text);   
+    final.compile_to_heterocl("linear_blur_gen.py", {input, }, output_shape, "final");
+    std::cout << "HeteroCL code generated" << std::endl;
 
 
     return 0;

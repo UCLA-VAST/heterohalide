@@ -1534,15 +1534,22 @@ void CodeGen_HeteroCL::visit(const Let *op) {
     op->value.accept(this);
     stream << "\n";
     
-    
     if (op->body.node_type() == IRNodeType::Let) {
         debug(0) << "visit Let: branch 1\n";
         op->body.accept(this);
     } else {
         debug(0) << "visit Let: branch 2\n";
         do_indent();
+
+        stream << intermediate_var_store_for_let.first << "[";
+        print_list(intermediate_var_store_for_let.second);
+        stream << "] = ";
+
+        /* Version 1 
         stream << "return ";
+        */
         op->body.accept(this);
+        stream << "\n";
     }
 }
 
@@ -1681,7 +1688,6 @@ void CodeGen_HeteroCL::print_placeholder() {
         dim_count = 0;
 
         debug(0) << "input dim: " << input_dim << "\n";
-        debug(0) << "Wrong here?!" << "\n";
 
         stream << iter_info->first << " = " << "hcl.placeholder((";
         for (auto iter_ext = iter_info->second.begin(); iter_ext != iter_info->second.end(); ++iter_ext) {
@@ -1719,7 +1725,7 @@ void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
                     stream << ", ";
                 }
             }
-            stream << "), lambda: ";
+            stream << "), lambda ";
             print_index(output_shape.size());
             stream << ": 0, name = \"" << op->name << "\", dtype = " << stage_type.first << "(bits = " << std::to_string(stage_type.second) << "))\n";
         }
@@ -2203,21 +2209,27 @@ void CodeGen_HeteroCL::visit(const Broadcast *op) {
 void CodeGen_HeteroCL::visit(const Provide *op) {
     debug(0) << "visit Provide...\n";
 
-    do_indent();
-    stream << op->name << "[";
-    print_list(op->args);
-    stream << "] = ";
-    // if (op->values.size() > 1) {
-    //     stream << "{";
-    // }
 
-    print_list(op->values);
+    if (op->values[0].node_type() != IRNodeType::Let) { // not followed with a Let node
+        do_indent();
+        stream << op->name << "[";
+        print_list(op->args);
+        stream << "] = ";
+        // if (op->values.size() > 1) {
+        //     stream << "{";
+        // }
 
-    // if (op->values.size() > 1) {
-    //     stream << "}";
-    // }
+        print_list(op->values);
 
-    stream << '\n';
+        // if (op->values.size() > 1) {
+        //     stream << "}";
+        // }
+        stream << '\n';
+    } else { // followed with a Let node      
+        intermediate_var_store_for_let.first = op->name;
+        intermediate_var_store_for_let.second = op->args;
+        print_list(op->values);
+    }
 
 }
     /* Version 1 - Provide
@@ -2423,7 +2435,7 @@ void CodeGen_HeteroCL::visit(const Realize *op) {
             stream << ", ";
         }
     }
-    stream << "), lambda: ";
+    stream << "), lambda ";
     print_index(op->bounds.size());
     stream << ": 0, name = \"" << op->name << "\", dtype = " << stage_type.first << "(bits = " << std::to_string(stage_type.second) << "))\n";
 

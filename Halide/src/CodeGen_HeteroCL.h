@@ -282,6 +282,7 @@ protected:
 
     // New Transformation Rules
     // Function
+    /** if number = 1, stream << "x"; if number = 2, stream << "x, y"; ... */
     void print_index(int number);
     
 
@@ -293,6 +294,8 @@ protected:
     /** function_name, collected in compile(const LoweredFunc &f); it is also the last stage's name */
     std::string function_name;
 
+    /** collected in "Provide" if the next node is "Let". std::string is op->name; std::vector<Expr> is op->args. Used in last "Let" node. */
+    std::pair< std::string, std::vector<Expr> > intermediate_var_store_for_let;
 
     using IRVisitor::visit;
 
