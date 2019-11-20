@@ -40,6 +40,10 @@
 1. Harris
     Compare the results, again the bug comes from "cim" operation. I think this comes from type transformation, so we just ignore it for now. It is not related to the new transformation rules. 
 
+## Result
+1. Linear_Blur
+    BRAM 3504 (RAMB36 1744 + RAMB18 16), which is very high? But the SODA code seems the same as the former one (using old transformation rules)
+
 # New
 ## Rules
 1. need to add a "final stage" which is equal to the last stage, because the last stage in Halide IR doesn't have a Realize node so that we can't know its Type information. To make the last two stage totally equal, we just copy from the Type information from the "second to last" stage for the "final stage". 
@@ -57,10 +61,6 @@ Still, I need to clean the code in "Realize" (haven't yet)
 2. conv
 3. linear_blur
 4. stencil_chain
-
-### Have Bugs
-1. Harris
-Compare the results, again the bug comes from "cim" operation. I think this comes from type transformation, so we just ignore it for now. It is not related to the new transformation rules. 
 
 ## New Transformation Rules
 ### Folders and Files
