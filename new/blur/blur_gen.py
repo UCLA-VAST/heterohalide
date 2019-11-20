@@ -1,7 +1,7 @@
 import heterocl as hcl
 hcl.init()
-final_extent_0 = 56
-final_extent_1 = 46
+final_extent_0 = 640
+final_extent_1 = 480
 final_min_0 = 0
 final_min_1 = 0
 def top(input, ):
@@ -15,22 +15,22 @@ def top(input, ):
         with hcl.for_(final_min_1, final_extent_1, name = "blur_y_s0_y") as blur_y_s0_y:
             with hcl.for_(final_min_0, final_extent_0, name = "blur_y_s0_x") as blur_y_s0_x:
                 blur_y[blur_y_s0_x, blur_y_s0_y] = ((blur_x[blur_y_s0_x, (blur_y_s0_y + 2)] + (blur_x[blur_y_s0_x, blur_y_s0_y] + blur_x[blur_y_s0_x, (blur_y_s0_y + 1)]))/hcl.cast(dtype = hcl.UInt(bits = 16), expr = 3))
-    final = hcl.compute((56, 46), lambda x, y: 0, name = "final", dtype = hcl.UInt(bits = 16))
+    final = hcl.compute((640, 480), lambda x, y: 0, name = "final", dtype = hcl.UInt(bits = 16))
     with hcl.Stage("final"):
         with hcl.for_(final_min_1, final_extent_1, name = "final_s0_y") as final_s0_y:
             with hcl.for_(final_min_0, final_extent_0, name = "final_s0_x") as final_s0_x:
                 final[final_s0_x, final_s0_y] = blur_y[final_s0_x, final_s0_y]
     return final
-input = hcl.placeholder((64, 48, ), name = "input", dtype = hcl.UInt(bits = 16))
+input = hcl.placeholder((648, 482, ), name = "input", dtype = hcl.UInt(bits = 16))
 s = hcl.create_schedule([input, ], top)
 f = hcl.build(s)
 print(hcl.lower(s))
 import numpy as np
-np_input = np.load("input.npy")
-hcl_input = hcl.asarray(np_input, dtype = hcl.UInt(bits = 16))
-output_shape = (56, 46, )
-hcl_out = hcl.asarray(np.zeros(output_shape), dtype = hcl.UInt(bits = 16))
-f(hcl_input, hcl_out)
-np_out = hcl_out.asnumpy()
-np.save("output_heterocl.npy", np_out)
+# np_input = np.load("input.npy")
+# hcl_input = hcl.asarray(np_input, dtype = hcl.UInt(bits = 16))
+# output_shape = (640, 480, )
+# hcl_out = hcl.asarray(np.zeros(output_shape), dtype = hcl.UInt(bits = 16))
+# f(hcl_input, hcl_out)
+# np_out = hcl_out.asnumpy()
+# np.save("output_heterocl.npy", np_out)
 print(hcl.build(s, target = "soda"))
