@@ -1,5 +1,8 @@
 # Need to be attention
 1. when testing, need the input and output data type: uint16 or larger. Uint8 will cause unexpected error......
+2. Burstwidth and Unroll factor
+    1. Usually (one input and one output): Maximum bandwidth = 512. input burstwidth + output burstwidth <= 512. -> burstwidth = 256 = unroll_factor * bits of one input data
+    2. multiple input and multiple output: how to calculate? forget......
 
 # Plan
 ## rebuttal
@@ -27,7 +30,16 @@
         2. Have two adjacent For loops in one stage. This structure is not supported by SODA transformer now. Can't generate correct SODA code. 
     5. Gaussian
         1. Can Generate Correct HeteroCL code. Can't generate correct SODA code (SODA bug 2)
-    6. Unsharp (support multiple input / output version?)
+    6. Unsharp (support multiple input / output version?) (later)
+        1. previous: SODA doesn't support different dimensions between the stages, and in this case, we have dim-3 input and output, but the intermediate stages are dim-2.         
+        previous solution: we separate the original dim-3 input and output to 3 dim-2 inputs and outputs. This leads to the problem of multiple inputs and outputs. We didn't handle this problem well for now.         
+
+        We create 3 HeteroCL code files for each dimension, and genereate 3 SODA code files... But of course counting the resources all is wasteful and unreasonable. The performance result is obatined via one dim of the separated dimensions. And the CPU speed is obtained via the orginal dim-3 code. 
+
+        2. We aim to support multiple inputs and outputs in this new version. 
+        
+        "hcl.update()" function will be a potential solution. But also we need to modify the connection code to let three output Func to be received in CodeGen_HeteroCL. 
+
 3. Support the schedules
     1. reorder
     2. split
