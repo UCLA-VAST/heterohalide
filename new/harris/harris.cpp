@@ -37,14 +37,14 @@ int main(int argc, char **argv) {
     Func grad_xx("grad_xx"), grad_yy("grad_yy"), grad_xy("grad_xy");
     Func grad_gx("grad_gx"), grad_gy("grad_gy"), grad_gxy("grad_gxy");
     Func cim("cim");
-    Func output("output"), hw_output("hw_output");
+    Func final("final"), output_final("output_final");
     RDom box(0, 3, 0, 3);
 
     //padded = BoundaryConditions::repeat_edge(input);
     // padded(x, y) = input(x+3, y+3);
 
     // sobel filter
-    Func padded16;
+    Func padded16("padded16");
     padded16(x,y) = cast<int16_t>(input(x,y));
     grad_x(x, y) = cast<int16_t>(-padded16(x,y) + padded16(x+2,y)
                                     -2*padded16(x,y+1) + 2*padded16(x+2,y+1)
@@ -78,10 +78,10 @@ int main(int argc, char **argv) {
         cim(x+1, y+1) > cim(x+1, y) && cim(x+1, y+1) > cim(x, y+1) &&
         cim(x+1, y+1) > cim(x+2, y+1) && cim(x+1, y+1) > cim(x, y+2) &&
         cim(x+1, y+1) > cim(x+1, y+2) && cim(x+1, y+1) > cim(x+2, y+2);
-    hw_output(x, y) = select( is_max && (cim(x+1, y+1) >= threshold), cast<uint16_t>(255), 0);
+    output_final(x, y) = select( is_max && (cim(x+1, y+1) >= threshold), cast<uint16_t>(255), 0);
 
-    output(x, y) = hw_output(x, y);
-    // output(x, y) = input(x, y);
+    final(x, y) = output_final(x, y);
+    // final(x, y) = input(x, y);
 
     padded.compute_root();
     padded16.compute_root();
@@ -94,62 +94,66 @@ int main(int argc, char **argv) {
     grad_gy.compute_root();
     grad_gxy.compute_root();
     cim.compute_root();
-    hw_output.compute_root();
-    output.compute_root();
+    output_final.compute_root();
+    final.compute_root();
 
     // if (argc == 2) {
     //     std::cout << "CPU scheduling \n";
-    //     output.tile(x, y, xo, yo, xi, yi, 240, 320);
-    //     grad_x.compute_at(output, xo).vectorize(x, 8);
-    //     grad_y.compute_at(output, xo).vectorize(x, 8);
-    //     grad_xx.compute_at(output, xo).vectorize(x, 4);
-    //     grad_yy.compute_at(output, xo).vectorize(x, 4);
-    //     grad_xy.compute_at(output, xo).vectorize(x, 4);
-    //     grad_gx.compute_at(output, xo).vectorize(x, 4);
-    //     grad_gy.compute_at(output, xo).vectorize(x, 4);
-    //     grad_gxy.compute_at(output, xo).vectorize(x, 4);
-    //     cim.compute_at(output, xo).vectorize(x, 4);
+    //     final.tile(x, y, xo, yo, xi, yi, 240, 320);
+    //     grad_x.compute_at(final, xo).vectorize(x, 8);
+    //     grad_y.compute_at(final, xo).vectorize(x, 8);
+    //     grad_xx.compute_at(final, xo).vectorize(x, 4);
+    //     grad_yy.compute_at(final, xo).vectorize(x, 4);
+    //     grad_xy.compute_at(final, xo).vectorize(x, 4);
+    //     grad_gx.compute_at(final, xo).vectorize(x, 4);
+    //     grad_gy.compute_at(final, xo).vectorize(x, 4);
+    //     grad_gxy.compute_at(final, xo).vectorize(x, 4);
+    //     cim.compute_at(final, xo).vectorize(x, 4);
 
     //     grad_gx.update(0).unroll(box.x).unroll(box.y);
     //     grad_gy.update(0).unroll(box.x).unroll(box.y);
     //     grad_gxy.update(0).unroll(box.x).unroll(box.y);
 
-    //     output.fuse(xo, yo, xo).parallel(xo).vectorize(xi, 4);
+    //     final.fuse(xo, yo, xo).parallel(xo).vectorize(xi, 4);
     // }
 
 
 
-    // Buffer<int32_t> out(input.width() - 4, input.height() - 4);
-    Buffer<float> out(input.width() - 4, input.height() - 4);
+    // Buffer<int32_t> output(input.width() - 4, input.height() - 4);
+    Buffer<uint16_t> output(input.width() - 6, input.height() - 6);
 
     // const clock_t begin_time = clock();
-    // output.realize(out);
+    // final.realize(output);
     // float total_time = float( clock() - begin_time ) / CLOCKS_PER_SEC;
     // std::ofstream clockfile ("clock.txt", std::ios::app);
     // if (clockfile) {
     //     clockfile << total_time << "\t";
     // }
     
-    cim.realize(out);
-    std::ofstream outfile ("/curr/jiajieli/new/harris/output_halide.txt");
-    outfile.setf(std::ios::fixed, std::ios::floatfield);
-    outfile.precision(5);
-    if (outfile)
-    {
-        for (int y = 0; y < out.height(); y++) {
-            for (int x = 0; x < out.width(); x++) {
-                outfile << out(x, y) << '\t';            
-            }
-        }
-    }
+    // generate Halide output
 
-    // std::vector<int> output_shape;
-    // for (int i = 0; i < out.dimensions(); i++){
-    //     output_shape.push_back(out.extent(i));
+    // final.realize(output);
+    // std::ofstream outfile ("/curr/jiajieli/new/harris/output_halide.txt");
+    // outfile.setf(std::ios::fixed, std::ios::floatfield);
+    // outfile.precision(5);
+    // if (outfile)
+    // {
+    //     for (int y = 0; y < output.height(); y++) {
+    //         for (int x = 0; x < output.width(); x++) {
+    //             outfile << output(x, y) << '\t';            
+    //         }
+    //     }
     // }
 
-    // output.compile_to_lowered_stmt("harris.stmt", {input}, Text);
-    // std::cout << "HTML Generated\n";
-    // output.compile_to_heterocl("harris_generate.py", {input}, output_shape, "output");
+    // generate HeteroCL code
+
+    std::vector<int> output_shape;
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
+    }
+
+    final.compile_to_lowered_stmt("harris.stmt", {input}, Text);
+    std::cout << "HTML Generated\n";
+    final.compile_to_heterocl("harris_generate.py", {input}, output_shape, "final");
 
 }

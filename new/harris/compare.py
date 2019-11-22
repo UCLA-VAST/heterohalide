@@ -1,30 +1,30 @@
 import numpy as np 
-# import cv2 
-# output_my = cv2.imread("out.png")
-# output_hls = cv2.imread("/curr/jiajieli/Halide-HLS/apps/hls_examples/harris_hls/out.png")
 def dif(a,b):
     return np.sum(np.abs(a - b)) / np.size(a)
-# print(np.array_equal(output_my, output_hls))
-# print(dif(output_my, output_hls))
 
 def count_dif_elem(a,b):
     return np.size(a) - np.sum(a==b)
 
-# print(count_dif_elem(output_my, output_hls)) # 6 different pixels, total: (2448 - 6) * (3264 - 6)
-
-# output_hcl = cv2.imread("out_hcl.png")
-# print(count_dif_elem(output_hcl, output_hls))
-
 output_halide = np.loadtxt("output_halide.txt")
-output_halide = np.transpose(output_halide.reshape((3264 - 4, 2448 - 4)), (1, 0))
+output_halide = np.transpose(output_halide.reshape((3264 - 6, 2448 - 6)), (1, 0)) 
 
 output_heterocl = np.load("output_heterocl.npy")
 
 print("output heterocl and halide: ", np.array_equal(output_heterocl, output_halide)) 
-print(dif(output_halide, output_heterocl))
-print(count_dif_elem(output_halide, output_heterocl))
+print(dif(output_halide, output_heterocl)) # 0.96307
+print(count_dif_elem(output_halide, output_heterocl)) # 30048
 
 input = np.load("input.npy")
+
+
+grad_gy_halide = np.loadtxt("grad_gy_halide.txt")
+grad_gy_halide = np.transpose(grad_gy_halide.reshape((3264 - 4, 2448 - 4)), (1, 0)) 
+
+grad_gy_heterocl = np.load("grad_gy_heterocl.npy")
+
+print("grad_gy heterocl and halide: ", np.array_equal(grad_gy_heterocl, grad_gy_halide)) # True
+print(dif(grad_gy_halide, grad_gy_heterocl)) # 0
+print(count_dif_elem(grad_gy_halide, grad_gy_heterocl)) # 0
 
 # Debug!!!!!!!
 # Input ok

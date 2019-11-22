@@ -1,0 +1,31 @@
+kernel: default_function
+burst width: 512
+unroll factor: 1
+iterate: 1
+input uint16: input(2450, *)
+local int32:
+  grad_xx(0, 0) = int32((int64(int32(grad_x(0, 0))) * int64(int32(grad_x(0, 0)))))
+local int16:
+  padded16(0, 0) = int16(input(0, 0))
+local int32:
+  grad_gx(0, 0) = 0
+local int32:
+  grad_xy(0, 0) = int32((int64(int32(grad_x(0, 0))) * int64(int32(grad_y(0, 0)))))
+local int16:
+  padded16(0, 0) = 0
+local int32:
+  grad_gy(0, 0) = 0
+local int16:
+  grad_y(0, 0) = int16((int35((padded16(2, 2) - padded16(0, 2))) + int35(int34((int33((int32((padded16(2, 1) - padded16(0, 1))) * 2)) + int33(int17((padded16(2, 0) - padded16(0, 0)))))))))
+local int16:
+  grad_x(0, 0) = int16((int36(padded16(2, 2)) + int36(int35((int34(((int32(padded16(1, 2)) * 2) - int32(padded16(2, 0)))) + int34(int33((int32(int17((padded16(0, 2) - padded16(0, 0)))) - (int32(padded16(1, 0)) * 2)))))))))
+local int32:
+  grad_gxy(0, 0) = 0
+local float32:
+  cim(0, 0) = (((float32((grad_gx(0, 0) / 144)) * float32((grad_gy(0, 0) / 144))) - (float32((grad_gxy(0, 0) / 144)) * float32((grad_gxy(0, 0) / 144)))) - (((float32((grad_gx(0, 0) / 144)) + float32((grad_gy(0, 0) / 144))) * (float32((grad_gx(0, 0) / 144)) + float32((grad_gy(0, 0) / 144)))) * 0.0400000F))
+local int32:
+  grad_yy(0, 0) = int32((int64(int32(grad_y(0, 0))) * int64(int32(grad_y(0, 0)))))
+local uint16:
+  output_final(0, 0) = select(((100.000F <= cim(1, 1)) && (select((select((select((select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)))) < cim(2, 0)), cim(2, 0), select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))))) < cim(2, 1)), cim(2, 1), select((select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)))) < cim(2, 0)), cim(2, 0), select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)))))) < cim(2, 2)), cim(2, 2), select((select((select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)))) < cim(2, 0)), cim(2, 0), select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))))) < cim(2, 1)), cim(2, 1), select((select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)))) < cim(2, 0)), cim(2, 0), select((select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))) < cim(1, 2)), cim(1, 2), select((select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1)) < cim(1, 0)), cim(1, 0), select((cim(0, 1) < cim(0, 0)), cim(0, 0), cim(0, 1))))))) < cim(1, 1))), 255, 0)
+output uint16:
+  final(0, 0) = output_final(0, 0)

@@ -1,107 +1,103 @@
 import heterocl as hcl
 hcl.init()
-output_extent_0 = 2442
-output_extent_1 = 3258
-output_min_0 = 0
-output_min_1 = 0
-def _all(input, ):
-    def padded16_0(padded16_s0_y, padded16_s0_x, input, ):
-        return hcl.cast(dtype = hcl.Int(bits = 16), expr = input[padded16_s0_y, padded16_s0_x])
-    padded16_0 = hcl.compute(((output_extent_1 + 6), (output_extent_0 + 6), ), lambda padded16_s0_y, padded16_s0_x, : padded16_0(padded16_s0_y, padded16_s0_x, input, ), name = "padded16_0", dtype = hcl.Int(bits = 16))
-
-    def grad_x_0(grad_x_s0_y, grad_x_s0_x, input, padded16, ):
-        return (padded16[(grad_x_s0_y + 2), (grad_x_s0_x + 2)] + (((padded16[(grad_x_s0_y + 1), (grad_x_s0_x + 2)] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)) + ((padded16[grad_x_s0_y, (grad_x_s0_x + 2)] - padded16[grad_x_s0_y, grad_x_s0_x]) - (padded16[(grad_x_s0_y + 1), grad_x_s0_x] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)))) - padded16[(grad_x_s0_y + 2), grad_x_s0_x]))
-    grad_x_0 = hcl.compute(((output_extent_1 + 4), (output_extent_0 + 4), ), lambda grad_x_s0_y, grad_x_s0_x, : grad_x_0(grad_x_s0_y, grad_x_s0_x, input, padded16_0, ), name = "grad_x_0", dtype = hcl.Int(bits = 16))
-
-    def grad_xx_0(grad_xx_s0_y, grad_xx_s0_x, input, grad_x, ):
-        t71_s = grad_x[grad_xx_s0_y, grad_xx_s0_x]
-        return (hcl.cast(dtype = hcl.Int(bits = 32), expr = t71_s) * hcl.cast(dtype = hcl.Int(bits = 32), expr = t71_s))
-    grad_xx_0 = hcl.compute(((output_extent_1 + 4), (output_extent_0 + 4), ), lambda grad_xx_s0_y, grad_xx_s0_x, : grad_xx_0(grad_xx_s0_y, grad_xx_s0_x, input, grad_x_0, ), name = "grad_xx_0", dtype = hcl.Int(bits = 32))
-
-    def grad_gx_0(grad_gx_s0_y, grad_gx_s0_x, input, ):
-        return 0
-    grad_gx_0 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda grad_gx_s0_y, grad_gx_s0_x, : grad_gx_0(grad_gx_s0_y, grad_gx_s0_x, input, ), name = "grad_gx_0", dtype = hcl.Int(bits = 32))
-
-    def grad_gx_1(grad_gx_s1_y, grad_gx_s1_x, input, grad_gx, grad_xx, ):
-        _sum = hcl.reducer(0, lambda x, y: x + y)
-        grad_gx_s1_box__x = hcl.reduce_axis(0, 3)
-        grad_gx_s1_box__y = hcl.reduce_axis(0, 3)
-        return (grad_gx[grad_gx_s1_y, grad_gx_s1_x] + _sum(
-            axis = [grad_gx_s1_box__y, grad_gx_s1_box__x, ],
-            expr = grad_xx[(grad_gx_s1_box__y + grad_gx_s1_y), (grad_gx_s1_box__x + grad_gx_s1_x)]
-        ))
-    grad_gx_1 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda grad_gx_s1_y, grad_gx_s1_x, : grad_gx_1(grad_gx_s1_y, grad_gx_s1_x, input, grad_gx_0, grad_xx_0, ), name = "grad_gx_1", dtype = hcl.Int(bits = 32))
-
-    def grad_y_0(grad_y_s0_y, grad_y_s0_x, input, padded16, ):
-        return ((padded16[(grad_y_s0_y + 2), (grad_y_s0_x + 2)] + (((padded16[(grad_y_s0_y + 2), (grad_y_s0_x + 1)] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)) + (padded16[(grad_y_s0_y + 2), grad_y_s0_x] - padded16[grad_y_s0_y, grad_y_s0_x])) - (padded16[grad_y_s0_y, (grad_y_s0_x + 1)] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)))) - padded16[grad_y_s0_y, (grad_y_s0_x + 2)])
-    grad_y_0 = hcl.compute(((output_extent_1 + 4), (output_extent_0 + 4), ), lambda grad_y_s0_y, grad_y_s0_x, : grad_y_0(grad_y_s0_y, grad_y_s0_x, input, padded16_0, ), name = "grad_y_0", dtype = hcl.Int(bits = 16))
-
-    def grad_xy_0(grad_xy_s0_y, grad_xy_s0_x, input, grad_y, grad_x, ):
-        return (hcl.cast(dtype = hcl.Int(bits = 32), expr = grad_x[grad_xy_s0_y, grad_xy_s0_x]) * hcl.cast(dtype = hcl.Int(bits = 32), expr = grad_y[grad_xy_s0_y, grad_xy_s0_x]))
-    grad_xy_0 = hcl.compute(((output_extent_1 + 4), (output_extent_0 + 4), ), lambda grad_xy_s0_y, grad_xy_s0_x, : grad_xy_0(grad_xy_s0_y, grad_xy_s0_x, input, grad_y_0, grad_x_0, ), name = "grad_xy_0", dtype = hcl.Int(bits = 32))
-
-    def grad_gxy_0(grad_gxy_s0_y, grad_gxy_s0_x, input, ):
-        return 0
-    grad_gxy_0 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda grad_gxy_s0_y, grad_gxy_s0_x, : grad_gxy_0(grad_gxy_s0_y, grad_gxy_s0_x, input, ), name = "grad_gxy_0", dtype = hcl.Int(bits = 32))
-
-    def grad_gxy_1(grad_gxy_s1_y, grad_gxy_s1_x, input, grad_gxy, grad_xy, ):
-        _sum = hcl.reducer(0, lambda x, y: x + y)
-        grad_gxy_s1_box__x = hcl.reduce_axis(0, 3)
-        grad_gxy_s1_box__y = hcl.reduce_axis(0, 3)
-        return (grad_gxy[grad_gxy_s1_y, grad_gxy_s1_x] + _sum(
-            axis = [grad_gxy_s1_box__y, grad_gxy_s1_box__x, ],
-            expr = grad_xy[(grad_gxy_s1_box__y + grad_gxy_s1_y), (grad_gxy_s1_box__x + grad_gxy_s1_x)]
-        ))
-    grad_gxy_1 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda grad_gxy_s1_y, grad_gxy_s1_x, : grad_gxy_1(grad_gxy_s1_y, grad_gxy_s1_x, input, grad_gxy_0, grad_xy_0, ), name = "grad_gxy_1", dtype = hcl.Int(bits = 32))
-
-    def grad_yy_0(grad_yy_s0_y, grad_yy_s0_x, input, grad_y, ):
-        t72_s = grad_y[grad_yy_s0_y, grad_yy_s0_x]
-        return (hcl.cast(dtype = hcl.Int(bits = 32), expr = t72_s) * hcl.cast(dtype = hcl.Int(bits = 32), expr = t72_s))
-    grad_yy_0 = hcl.compute(((output_extent_1 + 4), (output_extent_0 + 4), ), lambda grad_yy_s0_y, grad_yy_s0_x, : grad_yy_0(grad_yy_s0_y, grad_yy_s0_x, input, grad_y_0, ), name = "grad_yy_0", dtype = hcl.Int(bits = 32))
-
-    def grad_gy_0(grad_gy_s0_y, grad_gy_s0_x, input, ):
-        return 0
-    grad_gy_0 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda grad_gy_s0_y, grad_gy_s0_x, : grad_gy_0(grad_gy_s0_y, grad_gy_s0_x, input, ), name = "grad_gy_0", dtype = hcl.Int(bits = 32))
-
-    def grad_gy_1(grad_gy_s1_y, grad_gy_s1_x, input, grad_gy, grad_yy, ):
-        _sum = hcl.reducer(0, lambda x, y: x + y)
-        grad_gy_s1_box__x = hcl.reduce_axis(0, 3)
-        grad_gy_s1_box__y = hcl.reduce_axis(0, 3)
-        return (grad_gy[grad_gy_s1_y, grad_gy_s1_x] + _sum(
-            axis = [grad_gy_s1_box__y, grad_gy_s1_box__x, ],
-            expr = grad_yy[(grad_gy_s1_box__y + grad_gy_s1_y), (grad_gy_s1_box__x + grad_gy_s1_x)]
-        ))
-    grad_gy_1 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda grad_gy_s1_y, grad_gy_s1_x, : grad_gy_1(grad_gy_s1_y, grad_gy_s1_x, input, grad_gy_0, grad_yy_0, ), name = "grad_gy_1", dtype = hcl.Int(bits = 32))
-
-    def cim_0(cim_s0_y, cim_s0_x, input, grad_gy, grad_gxy, grad_gx, ):
-        t73 = grad_gx[cim_s0_y, cim_s0_x]
-        t74 = grad_gy[cim_s0_y, cim_s0_x]
-        t75 = grad_gxy[cim_s0_y, cim_s0_x]
-        t76 = (hcl.cast(dtype = hcl.Float(bits = 32), expr = (t73/144)) + hcl.cast(dtype = hcl.Float(bits = 32), expr = (t74/144)))
-        return (((hcl.cast(dtype = hcl.Float(bits = 32), expr = (t73/144)) * hcl.cast(dtype = hcl.Float(bits = 32), expr = (t74/144))) - (hcl.cast(dtype = hcl.Float(bits = 32), expr = (t75/144)) * hcl.cast(dtype = hcl.Float(bits = 32), expr = (t75/144)))) - ((t76 * t76) * hcl.cast(dtype = hcl.Float(bits = 32), expr = 0.040000)))
-    cim_0 = hcl.compute(((output_extent_1 + 2), (output_extent_0 + 2), ), lambda cim_s0_y, cim_s0_x, : cim_0(cim_s0_y, cim_s0_x, input, grad_gy_1, grad_gxy_1, grad_gx_1, ), name = "cim_0", dtype = hcl.Float(bits = 32))
-
-    def hw_output_0(hw_output_s0_y, hw_output_s0_x, input, cim, ):
-        t77 = cim[(hw_output_s0_y + 1), (hw_output_s0_x + 1)]
-        return hcl.select(hcl.and_((hcl.cast(dtype = hcl.Float(bits = 32), expr = 100.000000) <= t77), (hcl.select(cim[(hw_output_s0_y + 2), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 2), (hw_output_s0_x + 1)] > hcl.select(cim[(hw_output_s0_y + 2), hw_output_s0_x] > hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]))), cim[(hw_output_s0_y + 2), hw_output_s0_x], hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])))), cim[(hw_output_s0_y + 2), (hw_output_s0_x + 1)], hcl.select(cim[(hw_output_s0_y + 2), hw_output_s0_x] > hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]))), cim[(hw_output_s0_y + 2), hw_output_s0_x], hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]))))), cim[(hw_output_s0_y + 2), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 2), (hw_output_s0_x + 1)] > hcl.select(cim[(hw_output_s0_y + 2), hw_output_s0_x] > hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]))), cim[(hw_output_s0_y + 2), hw_output_s0_x], hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])))), cim[(hw_output_s0_y + 2), (hw_output_s0_x + 1)], hcl.select(cim[(hw_output_s0_y + 2), hw_output_s0_x] > hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]))), cim[(hw_output_s0_y + 2), hw_output_s0_x], hcl.select(cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)] > hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])), cim[(hw_output_s0_y + 1), (hw_output_s0_x + 2)], hcl.select(cim[(hw_output_s0_y + 1), hw_output_s0_x] > hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)]), cim[(hw_output_s0_y + 1), hw_output_s0_x], hcl.select(cim[hw_output_s0_y, hw_output_s0_x] > cim[hw_output_s0_y, (hw_output_s0_x + 1)], cim[hw_output_s0_y, hw_output_s0_x], cim[hw_output_s0_y, (hw_output_s0_x + 1)])))))) < t77)), hcl.cast(dtype = hcl.UInt(bits = 8), expr = 255), hcl.cast(dtype = hcl.UInt(bits = 8), expr = 0))
-    hw_output_0 = hcl.compute((output_extent_1, output_extent_0, ), lambda hw_output_s0_y, hw_output_s0_x, : hw_output_0(hw_output_s0_y, hw_output_s0_x, input, cim_0, ), name = "hw_output_0", dtype = hcl.UInt(bits = 8))
-
-    def output_0(output_s0_y, output_s0_x, input, hw_output, ):
-        return hw_output[output_s0_y, output_s0_x]
-    output_0 = hcl.compute((output_extent_1, output_extent_0, ), lambda output_s0_y, output_s0_x, : output_0(output_s0_y, output_s0_x, input, hw_output_0, ), name = "output_0", dtype = hcl.UInt(bits = 8))
-    
-    return cim_0
-input = hcl.placeholder((3264, 2448, ), name = "input", dtype = hcl.UInt(bits = 16))
-s = hcl.create_schedule([input, ], _all)
+final_extent_0 = 2442
+final_extent_1 = 3258
+final_min_0 = 0
+final_min_1 = 0
+def top(input, ):
+    padded16 = hcl.compute(((final_extent_0 + 6), (final_extent_1 + 6)), lambda x, y: 0, name = "padded16", dtype = hcl.Int(bits = 16))
+    with hcl.Stage("padded16"):
+        with hcl.for_(final_min_1, (final_extent_1 + 6), name = "padded16_s0_y") as padded16_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 6), name = "padded16_s0_x") as padded16_s0_x:
+                padded16[padded16_s0_x, padded16_s0_y] = hcl.cast(dtype = hcl.Int(bits = 16), expr = input[padded16_s0_x, padded16_s0_y])
+    grad_x = hcl.compute(((final_extent_0 + 4), (final_extent_1 + 4)), lambda x, y: 0, name = "grad_x", dtype = hcl.Int(bits = 16))
+    with hcl.Stage("grad_x"):
+        with hcl.for_(final_min_1, (final_extent_1 + 4), name = "grad_x_s0_y") as grad_x_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 4), name = "grad_x_s0_x") as grad_x_s0_x:
+                grad_x[grad_x_s0_x, grad_x_s0_y] = (padded16[(grad_x_s0_x + 2), (grad_x_s0_y + 2)] + (((padded16[(grad_x_s0_x + 2), (grad_x_s0_y + 1)] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)) + ((padded16[(grad_x_s0_x + 2), grad_x_s0_y] - padded16[grad_x_s0_x, grad_x_s0_y]) - (padded16[grad_x_s0_x, (grad_x_s0_y + 1)] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)))) - padded16[grad_x_s0_x, (grad_x_s0_y + 2)]))
+    grad_xx = hcl.compute(((final_extent_0 + 4), (final_extent_1 + 4)), lambda x, y: 0, name = "grad_xx", dtype = hcl.Int(bits = 32))
+    with hcl.Stage("grad_xx"):
+        with hcl.for_(final_min_1, (final_extent_1 + 4), name = "grad_xx_s0_y") as grad_xx_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 4), name = "grad_xx_s0_x") as grad_xx_s0_x:
+                t47_s = grad_x[grad_xx_s0_x, grad_xx_s0_y]
+                grad_xx[grad_xx_s0_x, grad_xx_s0_y] = (hcl.cast(dtype = hcl.Int(bits = 32), expr = t47_s) * hcl.cast(dtype = hcl.Int(bits = 32), expr = t47_s))
+    grad_gx = hcl.compute(((final_extent_0 + 2), (final_extent_1 + 2)), lambda x, y: 0, name = "grad_gx", dtype = hcl.Int(bits = 32))
+    with hcl.Stage("grad_gx"):
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "grad_gx_s0_y") as grad_gx_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "grad_gx_s0_x") as grad_gx_s0_x:
+                grad_gx[grad_gx_s0_x, grad_gx_s0_y] = 0
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "grad_gx_s1_y") as grad_gx_s1_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "grad_gx_s1_x") as grad_gx_s1_x:
+                with hcl.for_(0, 3, name = "grad_gx_s1_box__y") as grad_gx_s1_box__y:
+                    with hcl.for_(0, 3, name = "grad_gx_s1_box__x") as grad_gx_s1_box__x:
+                        grad_gx[grad_gx_s1_x, grad_gx_s1_y] = (grad_gx[grad_gx_s1_x, grad_gx_s1_y] + grad_xx[(grad_gx_s1_box__x + grad_gx_s1_x), (grad_gx_s1_box__y + grad_gx_s1_y)])
+    grad_y = hcl.compute(((final_extent_0 + 4), (final_extent_1 + 4)), lambda x, y: 0, name = "grad_y", dtype = hcl.Int(bits = 16))
+    with hcl.Stage("grad_y"):
+        with hcl.for_(final_min_1, (final_extent_1 + 4), name = "grad_y_s0_y") as grad_y_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 4), name = "grad_y_s0_x") as grad_y_s0_x:
+                grad_y[grad_y_s0_x, grad_y_s0_y] = ((padded16[(grad_y_s0_x + 2), (grad_y_s0_y + 2)] + (((padded16[(grad_y_s0_x + 1), (grad_y_s0_y + 2)] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)) + (padded16[grad_y_s0_x, (grad_y_s0_y + 2)] - padded16[grad_y_s0_x, grad_y_s0_y])) - (padded16[(grad_y_s0_x + 1), grad_y_s0_y] * hcl.cast(dtype = hcl.Int(bits = 16), expr = 2)))) - padded16[(grad_y_s0_x + 2), grad_y_s0_y])
+    grad_xy = hcl.compute(((final_extent_0 + 4), (final_extent_1 + 4)), lambda x, y: 0, name = "grad_xy", dtype = hcl.Int(bits = 32))
+    with hcl.Stage("grad_xy"):
+        with hcl.for_(final_min_1, (final_extent_1 + 4), name = "grad_xy_s0_y") as grad_xy_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 4), name = "grad_xy_s0_x") as grad_xy_s0_x:
+                grad_xy[grad_xy_s0_x, grad_xy_s0_y] = (hcl.cast(dtype = hcl.Int(bits = 32), expr = grad_x[grad_xy_s0_x, grad_xy_s0_y]) * hcl.cast(dtype = hcl.Int(bits = 32), expr = grad_y[grad_xy_s0_x, grad_xy_s0_y]))
+    grad_gxy = hcl.compute(((final_extent_0 + 2), (final_extent_1 + 2)), lambda x, y: 0, name = "grad_gxy", dtype = hcl.Int(bits = 32))
+    with hcl.Stage("grad_gxy"):
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "grad_gxy_s0_y") as grad_gxy_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "grad_gxy_s0_x") as grad_gxy_s0_x:
+                grad_gxy[grad_gxy_s0_x, grad_gxy_s0_y] = 0
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "grad_gxy_s1_y") as grad_gxy_s1_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "grad_gxy_s1_x") as grad_gxy_s1_x:
+                with hcl.for_(0, 3, name = "grad_gxy_s1_box__y") as grad_gxy_s1_box__y:
+                    with hcl.for_(0, 3, name = "grad_gxy_s1_box__x") as grad_gxy_s1_box__x:
+                        grad_gxy[grad_gxy_s1_x, grad_gxy_s1_y] = (grad_gxy[grad_gxy_s1_x, grad_gxy_s1_y] + grad_xy[(grad_gxy_s1_box__x + grad_gxy_s1_x), (grad_gxy_s1_box__y + grad_gxy_s1_y)])
+    grad_yy = hcl.compute(((final_extent_0 + 4), (final_extent_1 + 4)), lambda x, y: 0, name = "grad_yy", dtype = hcl.Int(bits = 32))
+    with hcl.Stage("grad_yy"):
+        with hcl.for_(final_min_1, (final_extent_1 + 4), name = "grad_yy_s0_y") as grad_yy_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 4), name = "grad_yy_s0_x") as grad_yy_s0_x:
+                t48_s = grad_y[grad_yy_s0_x, grad_yy_s0_y]
+                grad_yy[grad_yy_s0_x, grad_yy_s0_y] = (hcl.cast(dtype = hcl.Int(bits = 32), expr = t48_s) * hcl.cast(dtype = hcl.Int(bits = 32), expr = t48_s))
+    grad_gy = hcl.compute(((final_extent_0 + 2), (final_extent_1 + 2)), lambda x, y: 0, name = "grad_gy", dtype = hcl.Int(bits = 32))
+    with hcl.Stage("grad_gy"):
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "grad_gy_s0_y") as grad_gy_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "grad_gy_s0_x") as grad_gy_s0_x:
+                grad_gy[grad_gy_s0_x, grad_gy_s0_y] = 0
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "grad_gy_s1_y") as grad_gy_s1_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "grad_gy_s1_x") as grad_gy_s1_x:
+                with hcl.for_(0, 3, name = "grad_gy_s1_box__y") as grad_gy_s1_box__y:
+                    with hcl.for_(0, 3, name = "grad_gy_s1_box__x") as grad_gy_s1_box__x:
+                        grad_gy[grad_gy_s1_x, grad_gy_s1_y] = (grad_gy[grad_gy_s1_x, grad_gy_s1_y] + grad_yy[(grad_gy_s1_box__x + grad_gy_s1_x), (grad_gy_s1_box__y + grad_gy_s1_y)])
+    cim = hcl.compute(((final_extent_0 + 2), (final_extent_1 + 2)), lambda x, y: 0, name = "cim", dtype = hcl.Float(bits = 32))
+    with hcl.Stage("cim"):
+        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "cim_s0_y") as cim_s0_y:
+            with hcl.for_(final_min_0, (final_extent_0 + 2), name = "cim_s0_x") as cim_s0_x:
+                t49 = grad_gx[cim_s0_x, cim_s0_y]
+                t50 = grad_gy[cim_s0_x, cim_s0_y]
+                t51 = grad_gxy[cim_s0_x, cim_s0_y]
+                t52 = (hcl.cast(dtype = hcl.Float(bits = 32), expr = (t49/144)) + hcl.cast(dtype = hcl.Float(bits = 32), expr = (t50/144)))
+                cim[cim_s0_x, cim_s0_y] = (((hcl.cast(dtype = hcl.Float(bits = 32), expr = (t49/144)) * hcl.cast(dtype = hcl.Float(bits = 32), expr = (t50/144))) - (hcl.cast(dtype = hcl.Float(bits = 32), expr = (t51/144)) * hcl.cast(dtype = hcl.Float(bits = 32), expr = (t51/144)))) - ((t52 * t52) * hcl.cast(dtype = hcl.Float(bits = 32), expr = 0.040000)))
+    output_final = hcl.compute((final_extent_0, final_extent_1), lambda x, y: 0, name = "output_final", dtype = hcl.UInt(bits = 16))
+    with hcl.Stage("output_final"):
+        with hcl.for_(final_min_1, final_extent_1, name = "output_final_s0_y") as output_final_s0_y:
+            with hcl.for_(final_min_0, final_extent_0, name = "output_final_s0_x") as output_final_s0_x:
+                t53 = cim[(output_final_s0_x + 1), (output_final_s0_y + 1)]
+                output_final[output_final_s0_x, output_final_s0_y] = hcl.select(hcl.and_((hcl.cast(dtype = hcl.Float(bits = 32), expr = 100.000000) <= t53), (hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 2)] > hcl.select(cim[(output_final_s0_x + 1), (output_final_s0_y + 2)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 2)] > hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]))), cim[output_final_s0_x, (output_final_s0_y + 2)], hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])))), cim[(output_final_s0_x + 1), (output_final_s0_y + 2)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 2)] > hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]))), cim[output_final_s0_x, (output_final_s0_y + 2)], hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]))))), cim[(output_final_s0_x + 2), (output_final_s0_y + 2)], hcl.select(cim[(output_final_s0_x + 1), (output_final_s0_y + 2)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 2)] > hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]))), cim[output_final_s0_x, (output_final_s0_y + 2)], hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])))), cim[(output_final_s0_x + 1), (output_final_s0_y + 2)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 2)] > hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]))), cim[output_final_s0_x, (output_final_s0_y + 2)], hcl.select(cim[(output_final_s0_x + 2), (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])), cim[(output_final_s0_x + 2), (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, (output_final_s0_y + 1)] > hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y]), cim[output_final_s0_x, (output_final_s0_y + 1)], hcl.select(cim[output_final_s0_x, output_final_s0_y] > cim[(output_final_s0_x + 1), output_final_s0_y], cim[output_final_s0_x, output_final_s0_y], cim[(output_final_s0_x + 1), output_final_s0_y])))))) < t53)), hcl.cast(dtype = hcl.UInt(bits = 16), expr = 255), hcl.cast(dtype = hcl.UInt(bits = 16), expr = 0))
+    final = hcl.compute((2442, 3258), lambda x, y: 0, name = "final", dtype = hcl.UInt(bits = 16))
+    with hcl.Stage("final"):
+        with hcl.for_(final_min_1, final_extent_1, name = "final_s0_y") as final_s0_y:
+            with hcl.for_(final_min_0, final_extent_0, name = "final_s0_x") as final_s0_x:
+                final[final_s0_x, final_s0_y] = output_final[final_s0_x, final_s0_y]
+    return final
+input = hcl.placeholder((2448, 3264, ), name = "input", dtype = hcl.UInt(bits = 16))
+s = hcl.create_schedule([input, ], top)
 f = hcl.build(s)
 print(hcl.lower(s))
 import numpy as np
-np_input = np.transpose(np.load("input.npy"), (1, 0))
+np_input = np.load("input.npy")
 hcl_input = hcl.asarray(np_input, dtype = hcl.UInt(bits = 16))
-output_shape = (3264 - 4, 2448 - 4)
-hcl_out = hcl.asarray(np.zeros(output_shape), dtype = hcl.Float(bits = 32))
+output_shape = (2442, 3258, )
+hcl_out = hcl.asarray(np.zeros(output_shape), dtype = hcl.UInt(bits = 16))
 f(hcl_input, hcl_out)
 np_out = hcl_out.asnumpy()
-np_out = np.transpose(np_out, (1, 0))
 np.save("output_heterocl.npy", np_out)
-# print(hcl.build(s, target = "soda"))
+print(hcl.build(s, target = "soda"))
