@@ -1712,7 +1712,9 @@ void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
 
 
 
-    if (op->is_producer) {
+    if (op->is_producer) { // producer
+
+        original_output_name = op->name;
 
         // To deal with "Final stage", one solution is: we collect information in "Realize", and print hcl.compute(lambda: 0) in Producer
         if (op->name == function_name) {
@@ -1737,7 +1739,7 @@ void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
         indent += 4;
         op->body.accept(this);
         indent -= 4;
-    } else {
+    } else { // consumer
         op->body.accept(this);
     }
 }
@@ -1951,24 +1953,90 @@ void CodeGen_HeteroCL::print_using_stage_def_when_compute() {
 
 void CodeGen_HeteroCL::visit(const For *op) {
 
+    if (op->for_type == ForType::Unrolled) {
+        // order in env's key(output name, namely intermediate func name) is the same as Halide order: from inner to outer. Without reorder, it's like x, y, __outermost
+        // So we can simply use this order (stage_axis) to collect unroll factor
+        debug(0) << "visit unrolled for...\n";
+        if_stage_unroll = 1;
+        int unroll_factor;
+        debug(0) << "original output name: " << original_output_name << "\n"; // original_output_name is blur_x
+        vector<Dim> dim_group = env[original_output_name].definition().schedule().dims(); // 
+        int dim_size = dim_group.size();
+        debug(0) << "dim size: " << dim_size << "\n"; // bug here: dim_size : 3
+        debug(0) << "dim group var name: \n" << dim_group[0].var << "\n" << dim_group[1].var << "\n" << dim_group[2].var << "\n"; 
+        debug(0) << "dim group unroll factor: \n" << dim_group[0].unroll_factor << "\n" << dim_group[1].unroll_factor << "\n" << dim_group[2].unroll_factor << "\n";
+
+        unroll_factor = dim_group[dim_size - 2 - stage_axis].unroll_factor; // bug here: unroll factor = 0. "dim_size - 2 - stage_axis"?  stage_axis??
+        debug(0) << "unroll factor: " << unroll_factor << "\n";
+        axis_and_factor.push_back(std::make_pair(stage_axis, unroll_factor));
+
+        // unroll_axis.push_back(stage_axis);
+        
+
+        // vector<Dim> dim_group = env[original_output_name].definition().schedule().dims();
+        // unroll_factor_group.push_back(dim_group[stage_axis].unroll_factor);
+
+    } else if (op->for_type == ForType::Parallel) {
+        if_stage_parallel = 1;
+        parallel_axis.push_back(stage_axis);
+    }  
+
+    stage_axis ++ ;
 
     debug(0) << "visit for...\n";
 
-    do_indent();
-    stream << "with hcl.for_" << "(";
-    op->min.accept(this); 
-    stream << ", ";
-    op->extent.accept(this);
-    stream << ", name = " << "\"" << print_name(op->name) << "\") as " << print_name(op->name) << ":\n";
-    indent += 4;
+    if (op->body.node_type() == IRNodeType::For) {
+        debug(0) << "branch 1...\n";
+        do_indent();
+        stream << "with hcl.for_" << "(";
+        op->min.accept(this); 
+        stream << ", ";
+        op->extent.accept(this);
+        stream << ", name = " << "\"" << print_name(op->name) << "\") as " << print_name(op->name) << ":\n";
+        indent += 4;
 
-    op->body.accept(this);
-    
-    indent -= 4;
+        op->body.accept(this);
+        
+        indent -= 4;
+    } else {
+        debug(0) << "branch 2...\n";
+
+        // store in unroll_info map
+        if (if_stage_unroll) {
+            unroll_info[original_output_name] = axis_and_factor;
+        }
+        if (if_stage_parallel) {
+            parallel_info[original_output_name] = parallel_axis;
+        }
+
+        do_indent();
+        stream << "with hcl.for_" << "(";
+        op->min.accept(this); 
+        stream << ", ";
+        op->extent.accept(this);
+        stream << ", name = " << "\"" << print_name(op->name) << "\") as " << print_name(op->name) << ":\n";
+        indent += 4;
+
+        op->body.accept(this);
+        
+        indent -= 4;
+
+        axis_and_factor.clear();
+        parallel_axis.clear();
+        stage_axis = 0;
+        if_stage_unroll = 0;
+        if_stage_parallel = 0;        
+
+    }
+
+
+
+
+
 }
  
- 
-    /* Version 1 - For
+    /*
+    Version 1 - For
 
     std::size_t found = op->name.find("$"); //"$" seems to be the character of reduction domain loop's name
     if (found != std::string::npos) {

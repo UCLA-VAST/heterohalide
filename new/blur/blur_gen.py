@@ -23,14 +23,15 @@ def top(input, ):
     return final
 input = hcl.placeholder((648, 482, ), name = "input", dtype = hcl.UInt(bits = 16))
 s = hcl.create_schedule([input, ], top)
+# schedule
 f = hcl.build(s)
 print(hcl.lower(s))
 import numpy as np
-# np_input = np.load("input.npy")
-# hcl_input = hcl.asarray(np_input, dtype = hcl.UInt(bits = 16))
-# output_shape = (640, 480, )
-# hcl_out = hcl.asarray(np.zeros(output_shape), dtype = hcl.UInt(bits = 16))
-# f(hcl_input, hcl_out)
-# np_out = hcl_out.asnumpy()
-# np.save("output_heterocl.npy", np_out)
+np_input = np.load("input.npy")
+hcl_input = hcl.asarray(np_input, dtype = hcl.UInt(bits = 16))
+output_shape = (640, 480, )
+hcl_out = hcl.asarray(np.zeros(output_shape), dtype = hcl.UInt(bits = 16))
+f(hcl_input, hcl_out)
+np_out = hcl_out.asnumpy()
+np.save("output_heterocl.npy", np_out)
 print(hcl.build(s, target = "soda"))

@@ -1,4 +1,4 @@
-import heterocl as hcl 
+import heterocl as hcl
 hcl.init()
 final_extent_0 = 640
 final_extent_1 = 480
@@ -7,8 +7,8 @@ final_min_1 = 0
 def top(input, ):
     blur_x = hcl.compute((final_extent_0, (final_extent_1 + 2)), lambda x, y: 0, name = "blur_x", dtype = hcl.UInt(bits = 16))
     with hcl.Stage("blur_x"):
-        with hcl.for_(final_min_1, (final_extent_1 + 2), name = "blur_x_s0_y") as blur_x_s0_y:
-            with hcl.for_(final_min_0, final_extent_0, name = "blur_x_s0_x") as blur_x_s0_x:
+        with hcl.for_(final_min_0, final_extent_0, name = "blur_x_s0_x") as blur_x_s0_x:
+            with hcl.for_(final_min_1, (final_extent_1 + 2), name = "blur_x_s0_y") as blur_x_s0_y:
                 blur_x[blur_x_s0_x, blur_x_s0_y] = ((input[(blur_x_s0_x + 2), blur_x_s0_y] + (input[blur_x_s0_x, blur_x_s0_y] + input[(blur_x_s0_x + 1), blur_x_s0_y]))/hcl.cast(dtype = hcl.UInt(bits = 16), expr = 3))
     blur_y = hcl.compute((final_extent_0, final_extent_1), lambda x, y: 0, name = "blur_y", dtype = hcl.UInt(bits = 16))
     with hcl.Stage("blur_y"):
@@ -22,22 +22,17 @@ def top(input, ):
                 final[final_s0_x, final_s0_y] = blur_y[final_s0_x, final_s0_y]
     return final
 input = hcl.placeholder((648, 482, ), name = "input", dtype = hcl.UInt(bits = 16))
-                # see hcl.update, because for multi-input and multi-output, need to use hcl.update to support it
-s = hcl.create_schedule([input], top)
-
+s = hcl.create_schedule([input, ], top)
 s_blur_x = top.blur_x
-s[s_blur_x].unroll(s_blur_x.axis[1], 4) # it works
-
+s[s_blur_x].unroll(s_blur_x.axis[0], 4)
 s_blur_y = top.blur_y
-s[s_blur_y].unroll(s_blur_y.blur_y_s0_x, 4) # it works
-
-print(hcl.lower(s))
+s[s_blur_y].unroll(s_blur_y.axis[1], 4)
+s_blur_x = top.blur_x
+s[s_blur_x].parallel(s_blur_x.axis[1])
+s_blur_y = top.blur_y
+s[s_blur_y].parallel(s_blur_y.axis[0])
 f = hcl.build(s)
-
-
-
-# # Stage is similar to a compute function
-
+print(hcl.lower(s))
 import numpy as np
 np_input = np.load("input.npy")
 hcl_input = hcl.asarray(np_input, dtype = hcl.UInt(bits = 16))

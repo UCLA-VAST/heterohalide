@@ -41,12 +41,12 @@
         "hcl.update()" function will be a potential solution. But also we need to modify the connection code to let three output Func to be received in CodeGen_HeteroCL. 
 
 3. Support the schedules
-    1. reorder
+    1. reorder (done: Blur)
     2. split
     3. fuse
     4. tile
-    5. unroll
-    6. parallel
+    5. unroll (done: Blur)
+    6. parallel (done: Blur)
 
 ## Long term
 1. make compute_root as a default schedule

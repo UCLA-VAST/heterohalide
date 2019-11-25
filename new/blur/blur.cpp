@@ -49,10 +49,12 @@ int main(int argc, char **argv) {
     // blur_x.unroll_hcl(x, 4);
     // blur_x.print_loop_nest();
     
-
-    // blur_x.unroll_hcl(x, 4);
-    // blur_y.unroll_hcl(x, 4);
+    blur_x.reorder(y, x);
+    blur_x.unroll_hcl(x, 4);
+    blur_y.unroll_hcl(x, 4);
     
+    blur_x.parallel(y);
+    blur_y.parallel(y);
 
 
 
@@ -87,9 +89,11 @@ int main(int argc, char **argv) {
         output_shape.push_back(output.extent(i));
     }
 
-    final.compile_to_heterocl("blur_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
+    final.compile_to_lowered_stmt("blur_unroll.stmt", {input}, Text);
+
+    final.compile_to_heterocl("blur_unroll_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
     std::cout << "HeteroCL code Generated" << std::endl;
-    final.compile_to_lowered_stmt("blur.stmt", {input}, Text);
+
 
     return 0;
 }
