@@ -51,8 +51,7 @@ int main(int argc, char **argv) {
     
     blur_x.reorder(y, x);
     blur_x.unroll_hcl(x, 4);
-    blur_y.unroll_hcl(x, 4);
-    
+    blur_y.unroll_hcl(x, 4); 
     blur_x.parallel(y);
     blur_y.parallel(y);
 
