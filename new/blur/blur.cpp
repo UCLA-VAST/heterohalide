@@ -44,18 +44,17 @@ int main(int argc, char **argv) {
     // can't use one function here: blur_x(x, y) = (blur_x(x, y) + blur_x(x, y+1) + blur_x(x, y+2)) / 3, if use recursive references, the index need to be the same. It seems to be a demand to protect scheduling
     // Error occured: All of a function's recursive references to itself must contain the same pure variables in the same places as on the left-hand-side.
 
-    // unroll & reorder
-    // blur_x.reorder(y, x);
-    // blur_x.unroll_hcl(x, 4);
-    // blur_x.print_loop_nest();
-    
+    /* reorder, unroll, parallel
     blur_x.reorder(y, x);
     blur_x.unroll_hcl(x, 4);
     blur_y.unroll_hcl(x, 4); 
     blur_x.parallel(y);
     blur_y.parallel(y);
-
-
+    */
+     
+    // fuse
+    Var fused("fused");
+    blur_x.fuse(x, y, fused);
 
     // if (argc == 2) { // CPU schedule
     //     // std::cout << argv[1] << "\n";
@@ -88,9 +87,9 @@ int main(int argc, char **argv) {
         output_shape.push_back(output.extent(i));
     }
 
-    final.compile_to_lowered_stmt("blur_unroll.stmt", {input}, Text);
+    final.compile_to_lowered_stmt("blur_schedule.stmt", {input}, Text);
 
-    final.compile_to_heterocl("blur_unroll_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
+    final.compile_to_heterocl("blur_schedule_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
     std::cout << "HeteroCL code Generated" << std::endl;
 
 

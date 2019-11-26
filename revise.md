@@ -5,7 +5,29 @@
     2. multiple input and multiple output: how to calculate? forget......
 
 # Plan
-## rebuttal
+## Comments from reviewers
+### Reviewer 1
+1. Different backends from HeteroCL (*) More applications targeted to (not only SODA?)
+2. Novelty compared to Halide-HLS
+### Reviewer 2
+1. contributioin beyond a Halide-to-HeteroCL code generator
+2. HLS Generated very large #LoC in Table 3. Not valuable comparison. 
+### Reviewer 3
+1. disappointed that the methodology needs to rely on commercial HLS tools to generate RTL at the final step. (Response: HeteroCL is open-source. So our HeteroHalide is fully open-source, right? )
+2. Auto-scheduling
+3. Other metrics: latency, energy efficiency
+4. Comparison with Halide-HLS
+5. Comparison with xfOpenCV
+6. Besides #LoC, maybe should consider the number of pipelines (stages?) to show the complexity of the benchamrks? 
+### Reviewer 4
+1. Contribution & Novelty
+2. Show more about transformation details: tell the Halide IR system in detail?
+3. Comparison with Halide-HLS, technically.
+### Reviewer 5
+1. Lack some previous works, e.g. work done at Frost workshop at MIT, which support Halide in its FPGA compilation flow. Work from MIT and FixStars: previous Halide to FPGA compilers. 
+2. More results against low-level RTL would be interesting, to understand the cost of the abstraction. 
+
+## Rebuttal
 1. Test the performance of auto-scheduling
 2. Comparison with xfOpenCV
 3. Energy efficiency comparison (usually we can use the performance numbers and the thermal design power to obtain energy comparison)
@@ -41,12 +63,12 @@
         "hcl.update()" function will be a potential solution. But also we need to modify the connection code to let three output Func to be received in CodeGen_HeteroCL. 
 
 3. Support the schedules
-    1. reorder (done: Blur)
+    1. reorder (done)
     2. split
-    3. fuse
+    3. fuse (doing. 1. hcl.select()'s cond Bug; 2. Variable name need to be simplified)
     4. tile
-    5. unroll (done: Blur)
-    6. parallel (done: Blur)
+    5. unroll (done)
+    6. parallel (done)
 
 ## Long term
 1. make compute_root as a default schedule

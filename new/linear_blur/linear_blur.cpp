@@ -45,6 +45,14 @@ int main(int argc, char **argv) {
     Func final{"final"};
     final(x, y, c) = srgb(x, y, c);
 
+    linear.unroll_hcl(y, 16);
+    blur_x.reorder(y, x);
+    blur_x.unroll_hcl(x, 4);
+    blur_y.unroll_hcl(x, 4); 
+    blur_x.parallel(y);
+    blur_y.parallel(y);
+
+
     //fuse
     // Var fused("fused");
     // linear.fuse(x, y, fused);
@@ -94,8 +102,8 @@ int main(int argc, char **argv) {
         output_shape.push_back(output.extent(i));
     }
 
-    final.compile_to_lowered_stmt("linear_blur.stmt", {input}, Text);   
-    final.compile_to_heterocl("linear_blur_gen.py", {input, }, output_shape, "final");
+    final.compile_to_lowered_stmt("linear_blur_schedule.stmt", {input}, Text);   
+    final.compile_to_heterocl("linear_blur_schedule_gen.py", {input, }, output_shape, "final");
     std::cout << "HeteroCL code generated" << std::endl;
 
 
