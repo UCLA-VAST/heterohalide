@@ -308,7 +308,7 @@ protected:
     void visit(const Add *) override;
     void visit(const Sub *) override;
     void visit(const Mul *) override;
-    // void visit(const Div *) override;
+    void visit(const Div *) override; // change "/" to "//". Always set it as Integer Division 
     // void visit(const Mod *) override;
     void visit(const Max *) override;
     void visit(const Min *) override;

@@ -865,16 +865,13 @@ void CodeGen_HeteroCL::visit(const Mul *op) {
     visit_binop(op->type, op->a, op->b, "*");
 }
 
-// void CodeGen_HeteroCL::visit(const Div *op) {
-//     int bits;
-//     if (is_const_power_of_two_integer(op->b, &bits)) {
-//         visit_binop(op->type, op->a, make_const(op->a.type(), bits), ">>");
-//     } else if (op->type.is_int()) {
-//         print_expr(lower_euclidean_div(op->a, op->b));
-//     } else {
-//         visit_binop(op->type, op->a, op->b, "/");
-//     }
-// }
+void CodeGen_HeteroCL::visit(const Div *op) {
+    stream << '(';
+    print(op->a);
+    stream << "//"; // replace "/" with "//". Otherwise for split schedule, "/" is not regarded as integer division inside the HeteroCL function "hcl.for_(min, extent, name)", cause Error.
+    print(op->b);
+    stream << ')';
+}
 
 /*
 void CodeGen_HeteroCL::visit(const Mod *op) {
@@ -1567,28 +1564,25 @@ void CodeGen_HeteroCL::visit(const Select *op) {
 void CodeGen_HeteroCL::visit(const LetStmt *op) {
     // to clean the code, just ignore it...
     
-    if(letstmt_validate) {
-        string var_name = print_name(op->name);
-        inter_var[var_name] = op->value;
-
-        // auto iter = inter_var.find(var_name);
-        // if (iter == inter_var.end()) { // can't find it
-        //     inter_var[var_name] = op->value;
-        // }
+    // to record inter_var, and when call "Variable" node, code generator will directly call op->value
+    // But we can just "stream" the name and value of "LetStmt" now, so don't need to record now
+    // if (letstmt_validate) {
+    //     string var_name = print_name(op->name);
+    //     inter_var[var_name] = op->value;
+    // }
 
 
-        // stream << "let " << op->name << " = ";
-        // op->value.accept(this);
-        // stream << "\n";
+    if (op->value.node_type() == IRNodeType::Call) { 
+        // don't show statement like "let xxx = _halide_buffer_get_host(xxx)
+        // more precise: should regulate the type of Call function: we can use as<Call> function to obtain the type of the next Call node
+        op->body.accept(this);
+    } else {
+        do_indent();
+        stream << print_name(op->name) << " = ";
+        op->value.accept(this);
+        stream << "\n";    
+        op->body.accept(this);
     }
-
-
-
-    // do_indent();
-    // stream << print_name(op->name) << " = ";
-    // op->value.accept(this);
-    // stream << "\n";
-    op->body.accept(this);
 }
 
 /*
@@ -1708,7 +1702,7 @@ void CodeGen_HeteroCL::print_placeholder() {
 
 
 void CodeGen_HeteroCL::visit(const ProducerConsumer *op) {
-    letstmt_validate = 1;
+
 
 
 
@@ -2481,6 +2475,8 @@ void CodeGen_HeteroCL::print_index(int number) {
 }
 
 void CodeGen_HeteroCL::visit(const Realize *op) {
+    letstmt_validate = 1; // we set the first Realize node as the beginning of the HeteroCL code for algorithm
+
     // check Realize type, record in stage_type
     internal_assert(op->types.size() == 1); // seems always to be 1 for now
     stage_type.second = op->types[0].bits();

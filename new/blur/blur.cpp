@@ -52,9 +52,21 @@ int main(int argc, char **argv) {
     blur_y.parallel(y);
     */
      
-    // fuse
-    Var fused("fused");
-    blur_x.fuse(x, y, fused);
+    // // fuse
+    // Var fused_blur_x("fused_blur_x");
+    // blur_x.fuse(x, y, fused_blur_x);
+    // Var fused_blur_y("fused_blur_y");
+    // blur_y.fuse(x, y, fused_blur_y);
+
+    // split
+    Var x_outer("x_outer"), x_inner("x_inner");
+    blur_x.split(x, x_outer, x_inner, 200);
+    Var y_outer("y_outer"), y_inner("y_inner");
+    blur_y.split(y, y_outer, y_inner, 100);
+
+    // tile
+    
+
 
     // if (argc == 2) { // CPU schedule
     //     // std::cout << argv[1] << "\n";
@@ -66,7 +78,7 @@ int main(int argc, char **argv) {
     
     Buffer<uint16_t> output(input.width() - 8, input.height() - 2); // width - 8, height - 2
     
-
+    // generate Halide output
     // final.realize(output);    
     // std::ofstream outfile ("/curr/jiajieli/new/blur/output_halide.txt");
     // if (!outfile)
@@ -82,14 +94,15 @@ int main(int argc, char **argv) {
     //     }  
     // }
 
+    // generate HeteroCL code
     std::vector<int> output_shape;
     for (int i = 0; i < output.dimensions(); i++){
         output_shape.push_back(output.extent(i));
     }
 
-    final.compile_to_lowered_stmt("blur_schedule.stmt", {input}, Text);
+    final.compile_to_lowered_stmt("blur_split.stmt", {input}, Text);
 
-    final.compile_to_heterocl("blur_schedule_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
+    final.compile_to_heterocl("blur_split_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
     std::cout << "HeteroCL code Generated" << std::endl;
 
 
