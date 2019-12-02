@@ -77,7 +77,7 @@
         1. seems that using "Division" in hcl.for_(min, extent, name) will cause error.     
             Solution: "/" -> "//". Should be integer division. Always set Div as Interger Division. 
     3. fuse (done)
-    4. tile
+    4. tile (done)
     5. unroll (done)
     6. parallel (done)
 

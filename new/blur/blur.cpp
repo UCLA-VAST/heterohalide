@@ -58,14 +58,15 @@ int main(int argc, char **argv) {
     // Var fused_blur_y("fused_blur_y");
     // blur_y.fuse(x, y, fused_blur_y);
 
-    // split
-    Var x_outer("x_outer"), x_inner("x_inner");
-    blur_x.split(x, x_outer, x_inner, 200);
-    Var y_outer("y_outer"), y_inner("y_inner");
-    blur_y.split(y, y_outer, y_inner, 100);
+    // // split
+    // Var x_outer("x_outer"), x_inner("x_inner");
+    // blur_x.split(x, x_outer, x_inner, 200);
+    // Var y_outer("y_outer"), y_inner("y_inner");
+    // blur_y.split(y, y_outer, y_inner, 100);
 
-    // tile
-    
+    // // tile
+    // Var x_inner("x_inner"), y_inner("y_inner");
+    // blur_x.tile(x, y, x_inner, y_inner, 4, 4);
 
 
     // if (argc == 2) { // CPU schedule
@@ -100,9 +101,9 @@ int main(int argc, char **argv) {
         output_shape.push_back(output.extent(i));
     }
 
-    final.compile_to_lowered_stmt("blur_split.stmt", {input}, Text);
+    final.compile_to_lowered_stmt("blur.stmt", {input}, Text);
 
-    final.compile_to_heterocl("blur_split_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
+    final.compile_to_heterocl("blur_gen.py", {input}, output_shape, "final"); // add a parameter to send the output buffer shape into the CodeGen_HeteroCL
     std::cout << "HeteroCL code Generated" << std::endl;
 
 
