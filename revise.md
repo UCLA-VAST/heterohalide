@@ -12,6 +12,13 @@
     with hcl.Stage("s1"):
         blur_x[5, 5] = 2
     ```
+4. Add Optimization Switch
+    1. Generate HeteroCL code   
+        need to have `#define _CODEGEN_HETEROCL_GENERATE` in 'Halide/src/Lower.cpp' file.       
+        in run_application.sh (e.g. run_blur.sh), we use shell function `sed` to add and remove `#define _CODEGEN_HETEROCL_GENERATE`. 
+    2. Having `#define _CODEGEN_HETEROCL_GENERATE`
+        1. close Storage_Flatten
+        2. close Unroll & Vectorize optimizations
 
 # Plan
 ## Comments from reviewers

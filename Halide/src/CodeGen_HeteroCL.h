@@ -1,6 +1,5 @@
 #ifndef HALIDE_CODEGEN_HETEROCL_H
 #define HALIDE_CODEGEN_HETEROCL_H
-
 /** \file
  *
  * Defines an IRPrinter that emits HeteroCL code equivalent to a halide stmt

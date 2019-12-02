@@ -21,11 +21,6 @@ int main(int argc, char **argv) {
         }
     }
     
-    // for (int y = 0; y < input.height(); y++){
-    //     for (int x = 0; x < input.width(); x++){
-    //         input(x,y) = rand() % 256; 
-    //     }
-    // }    
     Var x("x"), y("y");
     
     Func blur_x("blur_x");
@@ -44,13 +39,13 @@ int main(int argc, char **argv) {
     // can't use one function here: blur_x(x, y) = (blur_x(x, y) + blur_x(x, y+1) + blur_x(x, y+2)) / 3, if use recursive references, the index need to be the same. It seems to be a demand to protect scheduling
     // Error occured: All of a function's recursive references to itself must contain the same pure variables in the same places as on the left-hand-side.
 
-    /* reorder, unroll, parallel
+    // reorder, unroll, parallel
     blur_x.reorder(y, x);
     blur_x.unroll_hcl(x, 4);
     blur_y.unroll_hcl(x, 4); 
     blur_x.parallel(y);
     blur_y.parallel(y);
-    */
+
      
     // // fuse
     // Var fused_blur_x("fused_blur_x");

@@ -268,10 +268,11 @@ Module lower(const vector<Function> &output_funcs,
     }
 
     // Close storage flatten: to generate HeteroCL code; Open storage flatten: to call Realize sucessfully to generate output_halide
-    
-    // debug(1) << "Performing storage flattening...\n";
-    // s = storage_flattening(s, outputs, env, t); // make multiple dim to one dim... need to close it
-    // debug(2) << "Lowering after storage flattening:\n" << s << "\n\n";
+    #ifndef _CODEGEN_HETEROCL_GENERATE_
+    debug(1) << "Performing storage flattening...\n";
+    s = storage_flattening(s, outputs, env, t); // make multiple dim to one dim... need to close it
+    debug(2) << "Lowering after storage flattening:\n" << s << "\n\n";
+    #endif
 
     debug(1) << "Unpacking buffer arguments...\n";
     s = unpack_buffers(s);
@@ -322,15 +323,20 @@ Module lower(const vector<Function> &output_funcs,
     s = simplify_correlated_differences(s);
     debug(2) << "Lowering after simplifying correlated differences:\n" << s << '\n';
 
-    // debug(1) << "Unrolling...\n";
-    // s = unroll_loops(s);
-    // s = simplify(s); // unroll?
-    // debug(2) << "Lowering after unrolling:\n" << s << "\n\n";
+    // if not define _CODEGEN_HETEROCL_GENERATE_ : execute the following code blocks (original Halide)
+    
+    #ifndef _CODEGEN_HETEROCL_GENERATE_
+    debug(1) << "Unrolling...\n";
+    s = unroll_loops(s);
+    s = simplify(s); // unroll?
+    debug(2) << "Lowering after unrolling:\n" << s << "\n\n";
 
-    // debug(1) << "Vectorizing...\n";
-    // s = vectorize_loops(s, t);
-    // s = simplify(s); // vectorize?
-    // debug(2) << "Lowering after vectorizing:\n" << s << "\n\n";
+    // when using vectorize in CPU testing, should open this optimization
+    debug(1) << "Vectorizing...\n";
+    s = vectorize_loops(s, t);
+    s = simplify(s); // vectorize?
+    debug(2) << "Lowering after vectorizing:\n" << s << "\n\n";
+    #endif
 
     if (t.has_gpu_feature() ||
         t.has_feature(Target::OpenGLCompute)) {
@@ -349,9 +355,12 @@ Module lower(const vector<Function> &output_funcs,
     s = simplify(s); // seems no change for simple
     debug(2) << "Lowering after partitioning loops:\n" << s << "\n\n";
 
-    // debug(1) << "Trimming loops to the region over which they do something...\n";
-    // s = trim_no_ops(s); // if close the storage_flatten optimization, open this will make func.body to 0. Don't know why. But closing storage_flatten, and then closing this will cause iternal_error when compile_to_;;v,...
-    // debug(2) << "Lowering after loop trimming:\n" << s << "\n\n";
+    #ifndef _CODEGEN_HETEROCL_GENERATE_
+    debug(0) << "open storage_flatten\n";
+    debug(1) << "Trimming loops to the region over which they do something...\n";
+    s = trim_no_ops(s); // if close the storage_flatten optimization, open this will make func.body to 0. Don't know why. But closing storage_flatten, and then closing this will cause iternal_error when compile_to_;;v,...
+    debug(2) << "Lowering after loop trimming:\n" << s << "\n\n";
+    #endif
 
     debug(1) << "Injecting early frees...\n";
     s = inject_early_frees(s);
