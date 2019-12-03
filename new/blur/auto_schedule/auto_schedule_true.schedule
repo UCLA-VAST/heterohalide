@@ -1,0 +1,31 @@
+// Target: x86-64-linux-avx-avx2-f16c-fma-sse41
+// MachineParams: 32,16777216,40
+
+// Delete this line if not using Generator
+Pipeline pipeline = get_pipeline();
+
+Var x_vi("x_vi");
+Var x_vo("x_vo");
+
+Func blur_x = pipeline.get_func(1);
+Func blur_y = pipeline.get_func(2);
+
+{
+    Var x = blur_x.args()[0];
+    Var y = blur_x.args()[1];
+    blur_x
+        .compute_root()
+        .split(x, x_vo, x_vi, 16)
+        .vectorize(x_vi)
+        .parallel(y);
+}
+{
+    Var x = blur_y.args()[0];
+    Var y = blur_y.args()[1];
+    blur_y
+        .compute_root()
+        .split(x, x_vo, x_vi, 16)
+        .vectorize(x_vi)
+        .parallel(y);
+}
+

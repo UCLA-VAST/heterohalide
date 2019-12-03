@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
 
     Func blur_y("blur_y");
     blur_y(x, y) = (blur_x(x, y) + blur_x(x, y+1) + blur_x(x, y+2))/3; 
+    
     // can't use one function here: blur_x(x, y) = (blur_x(x, y) + blur_x(x, y+1) + blur_x(x, y+2)) / 3, if use recursive references, the index need to be the same. It seems to be a demand to protect scheduling
     // Error occured: All of a function's recursive references to itself must contain the same pure variables in the same places as on the left-hand-side.
 

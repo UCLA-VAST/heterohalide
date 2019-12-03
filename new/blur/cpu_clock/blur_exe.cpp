@@ -4,7 +4,7 @@
 #include <iostream>
 #include <chrono>
 int main(int argc, char **argv) {
-    Halide::Runtime::Buffer<uint16_t> input(200, 150); // 648, 482
+    Halide::Runtime::Buffer<uint16_t> input(648, 482); // 648, 482
     Halide::Runtime::Buffer<uint16_t> output(input.width() - 8, input.height() - 2);
 
     // const clock_t begin_time = clock();

@@ -1,0 +1,75 @@
+// Target: x86-64-linux-avx-avx2-f16c-fma-sse41
+// MachineParams: 32,16777216,40
+
+// Delete this line if not using Generator
+Pipeline pipeline = get_pipeline();
+
+Var x_i("x_i");
+Var x_i_vi("x_i_vi");
+Var x_i_vo("x_i_vo");
+Var x_o("x_o");
+Var x_vi("x_vi");
+Var x_vo("x_vo");
+Var y_i("y_i");
+Var y_o("y_o");
+
+Func Ix = pipeline.get_func(4);
+Func Iy = pipeline.get_func(7);
+Func gray = pipeline.get_func(3);
+Func harris = pipeline.get_func(14);
+Func output1 = pipeline.get_func(15);
+Func output2 = pipeline.get_func(16);
+
+{
+    Var x = Ix.args()[0];
+    Ix
+        .compute_at(harris, x_o)
+        .split(x, x_vo, x_vi, 8)
+        .vectorize(x_vi);
+}
+{
+    Var x = Iy.args()[0];
+    Iy
+        .compute_at(harris, x_o)
+        .split(x, x_vo, x_vi, 8)
+        .vectorize(x_vi);
+}
+{
+    Var x = gray.args()[0];
+    gray
+        .compute_at(harris, x_o)
+        .split(x, x_vo, x_vi, 8)
+        .vectorize(x_vi);
+}
+{
+    Var x = harris.args()[0];
+    Var y = harris.args()[1];
+    harris
+        .compute_root()
+        .split(x, x_o, x_i, 256)
+        .split(y, y_o, y_i, 128)
+        .reorder(x_i, y_i, x_o, y_o)
+        .split(x_i, x_i_vo, x_i_vi, 8)
+        .vectorize(x_i_vi)
+        .parallel(y_o)
+        .parallel(x_o);
+}
+{
+    Var x = output1.args()[0];
+    Var y = output1.args()[1];
+    output1
+        .compute_root()
+        .split(x, x_vo, x_vi, 8)
+        .vectorize(x_vi)
+        .parallel(y);
+}
+{
+    Var x = output2.args()[0];
+    Var y = output2.args()[1];
+    output2
+        .compute_root()
+        .split(x, x_vo, x_vi, 8)
+        .vectorize(x_vi)
+        .parallel(y);
+}
+
