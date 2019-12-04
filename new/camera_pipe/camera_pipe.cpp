@@ -243,7 +243,6 @@ int main(int argc, char **argv) {
         output_shape.push_back(out.extent(i));
     }
     processed.compile_to_lowered_stmt("camera_pipe_new.stmt", {input}, Text);
-    processed.compile_to_heterocl("camera_pipe_generate.py", {input}, output_shape, "processed");
     
     
 

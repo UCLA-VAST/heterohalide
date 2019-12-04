@@ -50,15 +50,15 @@ public:
             // of the input images ('input', 'filter', and 'bias'), we use the
             // set_bounds_estimate() method. set_bounds_estimate() takes in
             // (min, extent) of the corresponding dimension as arguments.
-            input.dim(0).set_bounds_estimate(0, 200);
-            input.dim(1).set_bounds_estimate(0, 150);
+            input.dim(0).set_bounds_estimate(0, 648);
+            input.dim(1).set_bounds_estimate(0, 482);
 
 
             // To provide estimates (min and extent values) for each dimension
             // of pipeline outputs, we use the estimate() method. estimate()
             // takes in (dim_name, min, extent) as arguments.
-            blur_y.estimate(x, 0, 200)
-                   .estimate(y, 0, 150);
+            blur_y.estimate(x, 0, 648)
+                   .estimate(y, 0, 482);
 
             // Technically, the estimate values can be anything, but the closer
             // they are to the actual use-case values, the better the generated
@@ -203,4 +203,3 @@ private:
 HALIDE_REGISTER_GENERATOR(AutoScheduled, auto_schedule_gen)
 
 // After compiling this file, see how to use it in
-// lesson_21_auto_scheduler_run.cpp

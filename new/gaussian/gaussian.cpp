@@ -92,26 +92,26 @@ int main(int argc, char **argv) {
 
     // generate Halide output
 
-    final.realize(output);
-    std::ofstream outfile ("/curr/jiajieli/new/gaussian/output_halide.txt");
-    if (outfile)
-    {
-        for (int y = 0; y < output.height(); y++) {
-            for (int x = 0; x < output.width(); x++) {
-                outfile << output(x, y) << '\t';            
-            }
-        }  
-    }
+    // final.realize(output);
+    // std::ofstream outfile ("/curr/jiajieli/new/gaussian/output_halide.txt");
+    // if (outfile)
+    // {
+    //     for (int y = 0; y < output.height(); y++) {
+    //         for (int x = 0; x < output.width(); x++) {
+    //             outfile << output(x, y) << '\t';            
+    //         }
+    //     }  
+    // }
 
     // generate HeteroCL code
 
-    // std::vector<int> output_shape;
-    // for (int i = 0; i < output.dimensions(); i++){
-    //     output_shape.push_back(output.extent(i));
-    // }
-    // final.compile_to_lowered_stmt("gaussian.stmt", {input}, Text);
-    // std::cout << "Text generated\n";
-    // final.compile_to_heterocl("gaussian_generate.py", {input}, output_shape, "final");
+    std::vector<int> output_shape;
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
+    }
+    final.compile_to_lowered_stmt("gaussian.stmt", {input}, Text);
+    std::cout << "Text generated\n";
+    final.compile_to_heterocl("gaussian_generate.py", {input}, output_shape, "final");
 
     return 0;
 }

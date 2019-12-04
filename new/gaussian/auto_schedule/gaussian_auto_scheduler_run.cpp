@@ -22,7 +22,7 @@
 
 int main(int argc, char **argv) {
     // Let's declare and initialize the input images
-    Halide::Runtime::Buffer<uint16_t> input(200, 150); // 648, 482
+    Halide::Runtime::Buffer<uint8_t> input(1000, 1500); 
 
     for (int y = 0; y < input.height(); ++y) {
         for (int x = 0; x < input.width(); ++x) {
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    Halide::Runtime::Buffer<uint16_t> output(input.width() - 8, input.height() - 2);
+    Halide::Runtime::Buffer<uint8_t> output(input.width() - 8, input.height() - 8);
     // Run each version of the codes (with no auto-schedule and with
     // auto-schedule) multiple times for benchmarking.
     double auto_schedule_off = Halide::Tools::benchmark(2, 5, [&]() {
