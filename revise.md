@@ -204,12 +204,12 @@ the input size and manual schedule of the following testcases are the same as th
 | Linear Blur | 500 * 800 * 3 | 1.42 | 4.53 | 0.31 | 
 | Linear Blur | 768 * 1280 * 3 | 3.83 | 7.13 | 0.54 |
 | Stencil Chain |  |  | tile size: 512, vectorize: 16 |  |
-| Stencil Chain | 600 * 1000 | 0.69 | 1.76 |  |
-| Stencil Chain | 800 * 1200 | 0.96 | 1.92 |  |
-| Stencil Chain | 1000 * 1500 | 1.62 | 1.84 |  |
-| Stencil Chain | 1000 * 2000 | 1.39 | 2.00 |  |
-| Stencil Chain | 1300 * 2000 | 1.64 | 1.87 |  |
-| Stencil Chain | 1536 * 2560 | 2.25 | 3.54 |  |
+| Stencil Chain | 600 * 1000 | 0.69 | 1.76 | 0.39 |
+| Stencil Chain | 800 * 1200 | 0.96 | 1.92 | 0.5 |
+| Stencil Chain | 1000 * 1500 | 1.62 | 1.84 | 0.88 |
+| Stencil Chain | 1000 * 2000 | 1.39 | 2.00 | 0.695 |
+| Stencil Chain | 1300 * 2000 | 1.64 | 1.87 | 0.88 |
+| Stencil Chain | 1536 * 2560 | 2.25 | 3.54 | 0.64 |
 | Gaussian | | Auto-schedule failed: cannot auto-schedule function "sum_x" since dim"0" at stage 1 has been reordered | tile size: 256 * 64 |  |
 <!-- | Gaussian | 1000 * 1500 |  |  |  | 
 | Gaussian | 1500 * 2500 |  |  |  | 
