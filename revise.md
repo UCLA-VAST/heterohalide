@@ -1,3 +1,20 @@
+# Paper revision
+## New Experiments
+use SODA backend (hand-written) or Merlin backend?
+1. Dilation
+2. Erosion
+3. Sobel
+
+## address Merlin backend
+how to compare Merlin and SODA? How to use Merlin's DSE (design space exploration)? 
+1. Conv_layer     
+
+## Energy efficiency metrics
+
+## Auto-schedule
+
+## technical improvement to the Halide-HLS
+
 # Need to be attention
 1. when testing, need the input and output data type: uint16 or larger. Uint8 will cause unexpected error......
 2. Burstwidth and Unroll factor
