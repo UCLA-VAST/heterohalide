@@ -30,35 +30,36 @@ int main(int argc, char **argv) {
 
     min_local.compute_root();
     final.compute_root();
+    final.unroll(x, 4);
 
     Buffer<uint16_t> output(input.width() - 2, input.height() - 2);
     
     // generate Halide output
 
-    final.realize(output);    
-    std::ofstream outfile ("/curr/jiajieli/new/erosion/output_halide.txt");
-    if (!outfile)
-    {
-        std::cout << "can't open" << std::endl;
-    }
-    else
-    {
-        for (int y = 0; y < output.height(); y++) {
-            for (int x = 0; x < output.width(); x++) {
-                outfile << output(x, y) << '\t';
-            }
-        }  
-    }
+    // final.realize(output);    
+    // std::ofstream outfile ("/curr/jiajieli/new/erosion/output_halide.txt");
+    // if (!outfile)
+    // {
+    //     std::cout << "can't open" << std::endl;
+    // }
+    // else
+    // {
+    //     for (int y = 0; y < output.height(); y++) {
+    //         for (int x = 0; x < output.width(); x++) {
+    //             outfile << output(x, y) << '\t';
+    //         }
+    //     }  
+    // }
 
     // generate HeteroCL code
 
-    // std::vector<int> output_shape;
-    // for (int i = 0; i < output.dimensions(); i++){
-    //     output_shape.push_back(output.extent(i));
-    // }
+    std::vector<int> output_shape;
+    for (int i = 0; i < output.dimensions(); i++){
+        output_shape.push_back(output.extent(i));
+    }
 
-    // final.compile_to_lowered_stmt("erosion.stmt", {input}, Text);
-    // std::cout << "HTML Generated\n";
-    // final.compile_to_heterocl("erosion_generate.py", {input}, output_shape, "final"); // need some more modification to succefully run Code Generator, but it's doable
+    final.compile_to_lowered_stmt("erosion_unroll.stmt", {input}, Text);
+    std::cout << "HTML Generated\n";
+    final.compile_to_heterocl("erosion_gen_unroll.py", {input}, output_shape, "final"); // need some more modification to succefully run Code Generator, but it's doable
     
 }

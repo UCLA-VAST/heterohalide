@@ -5,6 +5,7 @@ final_extent_1 = 480
 final_min_0 = 0
 final_min_1 = 0
 def top(input, ):
+    final_total_extent_1 = (hcl.cast(dtype = hcl.Int(bits = 64), expr = final_extent_1) * hcl.cast(dtype = hcl.Int(bits = 64), expr = final_extent_0))
     max_local = hcl.compute((final_extent_0, final_extent_1), lambda x, y: 0, name = "max_local", dtype = hcl.UInt(bits = 16))
     with hcl.Stage("max_local"):
         with hcl.for_(final_min_1, final_extent_1, name = "max_local_s0_y") as max_local_s0_y:

@@ -40,11 +40,11 @@ int main(int argc, char **argv) {
     // Error occured: All of a function's recursive references to itself must contain the same pure variables in the same places as on the left-hand-side.
 
     // reorder, unroll, parallel
-    blur_x.reorder(y, x);
-    blur_x.unroll_hcl(x, 4);
-    blur_y.unroll_hcl(x, 4); 
-    blur_x.parallel(y);
-    blur_y.parallel(y);
+    // blur_x.reorder(y, x);
+    // blur_x.unroll_hcl(x, 4);
+    // blur_y.unroll_hcl(x, 4); 
+    // blur_x.parallel(y);
+    // blur_y.parallel(y);
 
      
     // // fuse

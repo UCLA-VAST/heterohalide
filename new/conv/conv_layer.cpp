@@ -6,7 +6,7 @@
 using namespace Halide;
 
 int main(int argc, char **argv) {
-    Buffer<float> input(67, 67, 32, 4); // width, height, channels, dim(3).extent
+    Buffer<float> input(67, 67, 32, 4); // width, height, channels, dim(3).extent (batch)
     Buffer<float> filter(3, 3, 32, 32);
     Buffer<float> bias(32);
 
@@ -52,9 +52,43 @@ int main(int argc, char **argv) {
     Func final("final");
     final(x, y, z, n) = f_ReLU(x, y, z, n);
 
+    // Func f_conv("f_conv");
+    // f_conv(x, y, z, n) += filter(r.x, r.y, r.z, z) * input(x + r.x, y + r.y, r.z, n);
+    
+    // Func f_bias("f_bias");
+    // f_bias(x, y, z, n) = f_conv(x, y, z, n) + bias(z);
+
+    // Func f_ReLU("f_relu");
+    // f_ReLU(x, y, z, n) = max(0, f_bias(x, y, z, n));
+
+    // Func final("final");
+    // final(x, y, z, n) = f_ReLU(x, y, z, n);
+
+    // Var xi{"xi"}, yi{"yi"}, zo{"zo"}, zi{"zi"};
+    // f_conv.tile(x, y, xi, yi, 4, 4);
+    // f_conv.compute_root();
+    // f_ReLU.compute_root();
+    // final.compute_root();
+
+
+    // test on CPU schedule
+    Var z_t("z_t"), y_t("y_t"), par("par");
+    int vec_len = 8;
+    int o_block_size = 32;
+    int y_block = 32;
     f_conv.compute_root();
-    f_ReLU.compute_root();
-    final.compute_root();
+    f_conv.fuse(z, n, par).parallel(par);
+    f_conv.update()
+        .reorder(x, y, r.z)
+        .split(y, y, y_t, y_block)
+        .split(z, z, z_t, o_block_size)
+        .reorder(y_t, z_t, y, r.z, z)
+        .unroll(r.x, 3)
+        .unroll(r.y, 3)
+        .fuse(z, n, par)
+        .parallel(par);
+
+
 
     Buffer<float> output(64, 64, 32, 4);
 
@@ -78,8 +112,8 @@ int main(int argc, char **argv) {
         output_shape.push_back(output.extent(i));
     }
 
-    final.compile_to_lowered_stmt("conv.stmt", {input, filter, bias}, Text);
-    final.compile_to_heterocl("conv_gen.py", {input, filter, bias}, output_shape, "final");
+    final.compile_to_lowered_stmt("conv_tile_test.stmt", {input, filter, bias}, Text);
+    final.compile_to_heterocl("conv_gen_tile_test.py", {input, filter, bias}, output_shape, "final");
 
 
     std::cout << "HeteroCL code generated" << std::endl;

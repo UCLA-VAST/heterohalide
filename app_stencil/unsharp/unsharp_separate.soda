@@ -5,12 +5,6 @@ iterate: 1
 input uint8: input_0(640, *)
 input uint8: input_1(640, *)
 input uint8: input_2(640, *)
-output uint8:
-  output_0(0, 0) = output_0_0(0, 0)
-output uint8:
-  output_1(0, 0) = output_1_0(0, 0)
-output uint8:
-  output_2(0, 0) = output_2_0(0, 0)
 local uint8:
   hw_output_2_0(0, 0) = uint8(select((((uint32(uint16(ratio_0(0, 0))) * uint32(uint16(input_2(4, 4)))) / 32) < 255), ((uint32(uint16(ratio_0(0, 0))) * uint32(uint16(input_2(4, 4)))) / 32), 255))
 local uint8:
@@ -99,7 +93,7 @@ local uint32:
   reducer0_ssa81 = int32((int98((uint96((uint64(uint32(gray_0(-8, 9))) * uint64(uint32(uint8((powf(2.71828F, -3.55555F) * 67.9728F)))))) * uint96(uint32(uint8((powf(2.71828F, -3.55555F) * 67.9728F)))))) + int98(reducer0_ssa80)))
   sum_x_1(0, 0) = uint32((int34(sum_x_0(0, 0)) + int34(reducer0_ssa81)))
 local uint8:
-  sharpen_0(0, 0) = uint8(select((uint33(((uint32(uint16(gray_0(0, 0))) * 2) - uint32(uint16(blur_x_0(0, 0))))) < 255UL), uint33(((uint32(uint16(gray_0(0, 0))) * 2) - uint32(uint16(blur_x_0(0, 0))))), 255UL))
+  sharpen_0(0, 0) = uint8(select((uint33(((uint32(uint16(gray_0(0, 0))) * 2) - uint32(uint16(blur_x_0(0, 0))))) < 255UL), uint33(((uint32(uint16(gray_0(0, 0))) * 2) - uint32(uint16(blur_x_0(0, 0))))), uint33(255UL)))
 local uint32:
   sum_x_0(0, 0) = 0
 local uint8:
@@ -116,3 +110,9 @@ local uint8:
   output_0_0(0, 0) = hw_output_0_0(0, 0)
 local uint8:
   output_1_0(0, 0) = hw_output_1_0(0, 0)
+output uint8:
+  output_0(0, 0) = output_0_0(0, 0)
+output uint8:
+  output_1(0, 0) = output_1_0(0, 0)
+output uint8:
+  output_2(0, 0) = output_2_0(0, 0)

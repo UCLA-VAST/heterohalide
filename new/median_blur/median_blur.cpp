@@ -3,8 +3,8 @@
 using namespace Halide;
 
 int main(int argc, char **argv) {
-    const int width = 642;
-    const int height = 482;
+    const int width = 6420;
+    const int height = 4820;
     Buffer<uint16_t> input(width, height);
 
     std::ifstream input_file ("/curr/jiajieli/new/median_blur/input.txt");
