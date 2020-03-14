@@ -4,13 +4,44 @@ Halide-HLS
 soda-compiler
 llvm3.8
 llvm8.0
+merlin-compiler
+merlin-dse-pkg
+soda
 
+# record folders
+auto_schedule
+cpu_clock
+merlin
+*_intel_soda*
+
+# old folders
+app_add
+app_halide2heterocl
+app_stencil
+
+# Unused folders
+sobel
+kmeans
+lenet
+camera_pipe
+unsharp
+
+# Unused files
+gemm_heterocl.py
+gemm_tile.py
+yuze
+kmeans_heterocl.py
 
 # Files
+merlin-dse-pkg.tgz
+merlin-dse.tgz
+env_merlin_dse.sh
+merlin.cpp
 plan.md
 # revise.md
 
 # some record file
+.gitignore
 *.txt
 *.npy
 *.png
@@ -22,6 +53,8 @@ plan.md
 *.stmt
 *.html
 
+*.aoco*
+*.aocr*
 
 # Intermediate Files by Mobaxterm
 .nfs*

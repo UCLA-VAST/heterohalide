@@ -1,0 +1,18 @@
+kernel: default_function
+burst width: 128
+unroll factor: 16
+iterate: 1
+input uint8: input(6478, *)
+local uint8:
+  reducer0_ssa1 = input(0, 0)
+  reducer0_ssa2 = select((reducer0_ssa1 > input(1, 0)), reducer0_ssa1, input(1, 0))
+  reducer0_ssa3 = select((reducer0_ssa2 > input(2, 0)), reducer0_ssa2, input(2, 0))
+  reducer0_ssa4 = select((reducer0_ssa3 > input(0, 1)), reducer0_ssa3, input(0, 1))
+  reducer0_ssa5 = select((reducer0_ssa4 > input(1, 1)), reducer0_ssa4, input(1, 1))
+  reducer0_ssa6 = select((reducer0_ssa5 > input(2, 1)), reducer0_ssa5, input(2, 1))
+  reducer0_ssa7 = select((reducer0_ssa6 > input(0, 2)), reducer0_ssa6, input(1, 2))
+  reducer0_ssa8 = select((reducer0_ssa7 > input(1, 2)), reducer0_ssa7, input(1, 2))
+  reducer0_ssa9 = select((reducer0_ssa8 > input(2, 2)), reducer0_ssa8, input(2, 2))
+  max_local(0, 0) = uint8(reducer0_ssa9)
+output uint8:
+  final(0, 0) = max_local(0, 0)

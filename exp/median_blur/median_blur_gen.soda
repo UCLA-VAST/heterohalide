@@ -1,0 +1,18 @@
+kernel: default_function
+burst width: 128
+unroll factor: 16
+iterate: 1
+input uint8: input(6478, *)
+local uint8:
+  reducer0_ssa1_s = input(0, 0)
+  reducer0_ssa2 = int32((int34((input(1, 0) / 9)) + int34(int32((reducer0_ssa1_s / 9)))))
+  reducer0_ssa3 = int32((int34((input(2, 0) / 9)) + int34(reducer0_ssa2)))
+  reducer0_ssa4 = int32((int34((input(0, 1) / 9)) + int34(reducer0_ssa3)))
+  reducer0_ssa5 = int32((int34((input(1, 1) / 9)) + int34(reducer0_ssa4)))
+  reducer0_ssa6 = int32((int34((input(2, 1) / 9)) + int34(reducer0_ssa5)))
+  reducer0_ssa7 = int32((int34((input(0, 2) / 9)) + int34(reducer0_ssa6)))
+  reducer0_ssa8 = int32((int34((input(1, 2) / 9)) + int34(reducer0_ssa7)))
+  reducer0_ssa9 = int32((int34((input(2, 2) / 9)) + int34(reducer0_ssa8)))
+  hw_output_1(0, 0) = uint8(reducer0_ssa9)
+output uint8:
+  output_0(0, 0) = hw_output_1(0, 0)

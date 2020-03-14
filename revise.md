@@ -266,3 +266,26 @@ the input size and manual schedule of the following testcases are the same as th
 | Gaussian | 1500 * 2500 |  |  |  | 
 | Gaussian | 1800 * 3000 |  |  |  | 
 | Gaussian | 2160 * 3840 |  |  |  |  -->
+
+
+# Intel FPGA OpenCL code / SODA flow
+| Benchmark | Data Sizes & Type | FPGA Maximum Throughput | ALUT | FF | RAMs | DSPs | MLABs | CPU rate (pixels/ns) | Speedup (Assume Frequency=480MHz) = (throughput * 480M) / (total pixels / total cpu time) | Energy Efficiency Gain | Backend |
+| --------  | --- | -- | -- | --- | ---- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Total  | Target Family: Intel Stratix 10; Device: 1SM21BHU2F53E2VGS1; Board: s10mx_ref:s10mx_hbm; Freq: 480 (432)| - | 1405440 | 2810880 | 6847 | 3960 | 0 | | | TDP(CPU) = 240W; TDP(FPGA) = ??W; FPGA_Energy_Efficiency / CPU_Energy_Efficiency = Speedup * TDP (CPU) / TDP (FPGA) | SODA/Merlin/Systolic Array |
+| Harris | 2448 * 3264, UInt8 | 16 | 177958 (13%) | 328071 (12%) | 1797 (26%) | 104 (3%) | 593 | 0.77636 | 9.89 |   | SODA |
+| Gaussian (RAM 317% error) - old stat | 2160 * 3840, UInt8 | 16 | 67298 | 41496 | 768 | 0 (0%) | 1.3167 | 6.08 | 5486.25 | 42666.67 | 7.78 | SODA |
+| Unsharp (old stat) | 2448 * 3264 * 3, UInt8 | 32 | 47683 | 33114 | 400 | 24 | AOT: 2.35954(pix/ns) |  3.39 | 9831.42 | 42666.67 | 4.34 | SODA |
+| Blur | 648 * 482, UInt16 | 16 | 37199 (3%) | 62400 (2%) | 420 (6%) | 0 (0%) | 71 | 1.0275507 | 7.47 |  | SODA |
+| Linear Blur | 768 * 1280 * 3, float32 | 8 | 264846 (19%) | 367687 (13%) | 4631 (68%) | 632 (16%) | 1495 | 0.446711 | 8.60 |  | SODA | 
+| Stencil_Chain (stage num = 3) | 1536 * 2560, UInt16 | 16 | 124317 (9%) | 238908 (8%) | 1989 (29%) | 24 (1%) | 251 | 2.640905 | 2.91 |  | SODA |
+| Dilation | 6480 * 4820, UInt8 | 16 | 35621 (3%) | 51676 (2%) | 444 (6%) | 0 (0%) | 30 | 4.83124 | 1.59 |  | SODA |
+| Median Blur | 6480 * 4820, UInt8 | 16 | 33973 (2%) | 50140 (2%) | 588 (9%) | 0(0%) | 30 | 1.80925 | 4.24 |  | SODA |
+
+
+
+| Erosion | 6480 * 4820, UInt8 | 32 | 13046 | 12114 | 0 | 64 | 4.94529 | 1.62 | - | - | 2.07 | SODA |
+| Sobel | 6480 * 4820, Int16 | 16 | 11311 | 10928 | 0 | 48 |  |  |  |  |  | SODA |
+| HeteroCL result | FPGA runtime | - | - | - | - | - | CPU runtime | Speedup = CPU runtime / FPGA runtime | - | - | - | - |
+| GEMM | 1024 * 1024 * 1024, Int16 | 2.659ms | 454492 | 800283 | 2057 | 932 | 7263908ns | 3.53 | 
+| LeNet | - | 0.058ms | 362291 | 660186 | 1368 | 739.5 | - | 
+| K-means | ClutseringK=16 | 3.747ms | 212708 | 235011 | 1536 | 32 | - | 
