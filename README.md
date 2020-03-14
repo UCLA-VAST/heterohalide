@@ -23,3 +23,6 @@ Jiajie Li, Yuze Chi, Jason Cong. HeteroHalide: From Image Processing DSL to Effi
 CPU: Xeon 2680v4 x2, 28 cores, 14nm, f=2.4GHz, TDP=240W
 Xilinx Vu9P: 16nm, f=250MHz, TDP=85W
 S10MX: 14nm, f=480MHz, TDP=192W
+
+## Setup
+The initial build method and prerequisites for HeteroHalide are the same as [Halide](https://github.com/halide/Halide)
