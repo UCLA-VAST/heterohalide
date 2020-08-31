@@ -1,13 +1,21 @@
 #!/bin/bash
-cd ~/Halide
-sed -i '1i\#define _CODEGEN_HETEROCL_GENERATE_' /curr/jiajieli/Halide/src/Lower.cpp # add '#define _CODEGEN_HETEROCL_GENERATE_' to the file 'Lower.cpp'
-export LLVM_CONFIG=~/llvm8.0/build/bin/llvm-config
-make bin/libHalide.so -j50
-cd ~/new/blur
-export HL_DEBUG_CODEGEN=0
-g++ blur.cpp -g -std=c++11 -I /curr/jiajieli/Halide/include -I /curr/jiajieli/Halide/tools -L /curr/jiajieli/Halide/bin -lHalide `libpng-config --cflags --ldflags` -ljpeg -lpthread -ldl -o blur
-LD_LIBRARY_PATH=/curr/jiajieli/Halide/bin /curr/jiajieli/new/blur/blur
-sed -i '/#define _CODEGEN_HETEROCL_GENERATE_/d' /curr/jiajieli/Halide/src/Lower.cpp # delete '#define _CODEGEN_HETEROCL_GENERATE' in the file 'Lower.cpp'
-cd ~/Halide
-export LLVM_CONFIG=~/llvm8.0/build/bin/llvm-config
-make bin/libHalide.so -j50
+base_dir="$(realpath "$(dirname "$0")")"
+halide_src="${base_dir}/../../Halide"
+build_dir="${base_dir}/../../build"
+
+# add '#define _CODEGEN_HETEROCL_GENERATE_' to the file 'Lower.cpp'
+sed -i '1i\#define _CODEGEN_HETEROCL_GENERATE_' "${halide_src}"/src/Lower.cpp
+cmake --build "${build_dir}" --target Halide
+
+g++ "${base_dir}"/blur.cpp -g -std=c++11 \
+  -I "${build_dir}"/include \
+  -I "${halide_src}"/tools \
+  -L "${build_dir}"/lib \
+  -l Halide \
+  -o "${base_dir}/blur"
+cd "${base_dir}"
+HL_DEBUG_CODEGEN=0 LD_LIBRARY_PATH="${build_dir}"/lib "${base_dir}"/blur
+
+# delete '#define _CODEGEN_HETEROCL_GENERATE_' in the file 'Lower.cpp'
+sed -i '/#define _CODEGEN_HETEROCL_GENERATE_/d' "${halide_src}"/src/Lower.cpp
+cmake --build "${build_dir}" --target Halide
